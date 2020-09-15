@@ -9,7 +9,7 @@
 
 digit      	  [0-9]
 integer       {digit}+
-float    	    {integer}"."{integer}
+float    	  ([0-9]*.[0-9]+)|([0-9]+.[0-9]*)
 
 /*CARACTERES ESPECIAS*/
 comment 	    "#"{characters}"#"
@@ -75,11 +75,11 @@ unitary_logic		  {not}
 {open_par}	        printf("open_par: %s\n", yytext);
 {close_par}	        printf("close_par: %s\n", yytext);
 {operations}	      printf("operation: %s\n", yytext);
-{math_logic}       	printf("logica_matematicas: %s\n", yytext);
-{binary_logic}  	  printf("logica_binary: %s\n", yytext);
-{unitary_logic} 	  printf("logica_unitaria: %s\n", yytext);
-{incr_operation}	  printf("operacao_incremento: %s\n", yytext);
-{decr_operation}   	printf("operacao_decremento: %s\n", yytext);
+{math_logic}       	printf("math_logic: %s\n", yytext);
+{binary_logic}  	  printf("binary_logic: %s\n", yytext);
+{unitary_logic} 	  printf("unitary_logic: %s\n", yytext);
+{incr_operation}	  printf("incr_operation: %s\n", yytext);
+{decr_operation}   	printf("decr_operation: %s\n", yytext);
 {string}		        printf("string: %s\n", yytext);
 {characters}        printf("characters: %s\n", yytext);
 
