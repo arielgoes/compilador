@@ -2,29 +2,29 @@
 %{
 #include <stdio.h>
 #include <stdlib.h>
-
+#define ECHO fwrite(yytext, yyleng, 1, yyout)
 %}
 
 /*NÚMEROS*/
 
 digit      	  [0-9]
 integer       {digit}+
-float    	  ([0-9]*.[0-9]+)|([0-9]+.[0-9]*)
+float    	  ([0-9]*\.[0-9]+)|([0-9]+\.[0-9]*)
 
 /*CARACTERES ESPECIAS*/
 comment 	    "#"{characters}"#"
 sum		        "+"
 sub		        "-"
-mult		      "*"
+mult		    "*"
 div		        "/"
-incr 		      "++"
-decr 		      "--"
+incr 		    "++"
+decr 		    "--"
 greater		    ">"
 smaller		    "<"
-greater_equal ">="
-smaller_equal "<="
-equal		      "=="
-diff		      "/="
+greater_equal   ">="
+smaller_equal   "<="
+equal		    "=="
+diff		    "/="
 and		        "&&"
 or		        "||"
 not		        "!"
@@ -32,11 +32,11 @@ open_par	    "\("
 close_par	    "\)"
 open_bracket	"{"
 close_bracket	"}"
-quote		      "\""
+quote		    "\""
 if		        "if"
-while		      "while"
+while		    "while"
 for		        "for"
-space		      "\n"|" "|"\t"
+space		    "\n"|" "|"\t"
 
 /* STRING */
 
@@ -56,7 +56,7 @@ operations		    ({integer}|{float}){binary_operators}({integer}|{float})
 
 math_logic      	{integer}({smaller}|{greater}|{equal}|{diff}|{greater_equal}|{smaller_equal}){integer}|{float}({smaller}|{greater}|{equal}|{diff}|{greater_equal}|{smaller_equal}){float}
 binary_logic	    {and}|{or}
-unitary_logic		  {not}
+unary_logic		       {not}
 
 
 
@@ -65,23 +65,22 @@ unitary_logic		  {not}
 /*ESTRUTURAS*/
 
 %%
-{digit}		          printf("digit: %s\n", yytext);
-{integer}           printf("integer number: %s\n", yytext);
-{sum}               printf("sum: %s\n", yytext);
-{float} 		        printf("float number: %s\n", yytext);
-{comment}   		    printf("comment: %s\n", yytext);
-{open_bracket}		  printf("open_bracket: %s\n", yytext);
-{close_bracket}		  printf("close_bracket: %s\n", yytext);
-{open_par}	        printf("open_par: %s\n", yytext);
-{close_par}	        printf("close_par: %s\n", yytext);
-{operations}	      printf("operation: %s\n", yytext);
-{math_logic}       	printf("math_logic: %s\n", yytext);
-{binary_logic}  	  printf("binary_logic: %s\n", yytext);
-{unitary_logic} 	  printf("unitary_logic: %s\n", yytext);
-{incr_operation}	  printf("incr_operation: %s\n", yytext);
-{decr_operation}   	printf("decr_operation: %s\n", yytext);
-{string}		        printf("string: %s\n", yytext);
-{characters}        printf("characters: %s\n", yytext);
-
-.			              printf("NaN\n");
+{digit}		        printf("digit: %s, length: %d\n", yytext, yyleng);
+{integer}           printf("integer number: %s, length: %d\n", yytext, yyleng);
+{sum}               printf("sum: %s, length: %d\n", yytext, yyleng);
+{float} 		    printf("float number: %s, length: %d\n", yytext, yyleng);
+{comment}   		printf("comment: %s, length: %d\n", yytext, yyleng);
+{open_bracket}		printf("open_bracket: %s, length: %d\n", yytext, yyleng);
+{close_bracket}		printf("close_bracket: %s, length: %d\n", yytext, yyleng);
+{open_par}	        printf("open_par: %s, length: %d\n", yytext, yyleng);
+{close_par}	        printf("close_par: %s, length: %d\n", yytext, yyleng);
+{operations}	    printf("operation: %s, length: %d\n", yytext, yyleng);
+{math_logic}       	printf("math_logic: %s, length: %d\n", yytext, yyleng);
+{binary_logic}  	printf("binary_logic: %s, length: %d\n", yytext, yyleng);
+{unary_logic} 	    printf("unary_operator: %s, length: %d\n", yytext, yyleng);
+{incr_operation}	printf("incr_operation: %s, length: %d\n", yytext, yyleng);
+{decr_operation}   	printf("decr_operation: %s, length: %d\n", yytext, yyleng);
+{string}		    printf("string: %s, length: %d\n", yytext, yyleng);
+{characters}        printf("characters: %s, length: %d\n", yytext, yyleng);
+.			        printf("NaN, length: %d\n", yyleng);
 %%
