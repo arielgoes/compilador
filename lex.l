@@ -66,8 +66,8 @@ unitary_logic		  {not}
 
 %%
 {digit}		          printf("digit: %s\n", yytext);
-{integer}           printf("integer number: %s", yytext);
-{sum}               printf("sum: %s", yytext);
+{integer}           printf("integer number: %s\n", yytext);
+{sum}               printf("sum: %s\n", yytext);
 {float} 		        printf("float number: %s\n", yytext);
 {comment}   		    printf("comment: %s\n", yytext);
 {open_bracket}		  printf("open_bracket: %s\n", yytext);
@@ -76,11 +76,12 @@ unitary_logic		  {not}
 {close_par}	        printf("close_par: %s\n", yytext);
 {operations}	      printf("operation: %s\n", yytext);
 {math_logic}       	printf("logica_matematicas: %s\n", yytext);
-{binary_logic}  	  printf("logicas_matematicas: %s\n", yytext);
+{binary_logic}  	  printf("logica_binary: %s\n", yytext);
 {unitary_logic} 	  printf("logica_unitaria: %s\n", yytext);
 {incr_operation}	  printf("operacao_incremento: %s\n", yytext);
 {decr_operation}   	printf("operacao_decremento: %s\n", yytext);
 {string}		        printf("string: %s\n", yytext);
+{characters}        printf("characters: %s\n", yytext);
 
 .			              printf("NaN\n");
 %%
