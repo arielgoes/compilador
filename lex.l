@@ -60,12 +60,12 @@ double          "double"
 /*binary_logic	    {and}|{or}*/
 /*unary_logic		{not}*/
 
-
-
 /*ESTRUTURAS*/
 
 %%
 {digit} 	        printf("digit: %s, length: %d\n", yytext, yyleng);
+{int}               printf("int: %s, length: %d\n", yytext, yyleng);
+{for}               printf("for: %s, length: %d\n", yytext, yyleng);
 {exp}               printf("exp: %s, length: %d\n", yytext, yyleng);
 {sum}               printf("sum: %s, length: %d\n", yytext, yyleng);
 {comment}   		printf("comment: %s, length: %d\n", yytext, yyleng);
@@ -73,6 +73,7 @@ double          "double"
 {close_bracket}		printf("close_bracket: %s, length: %d\n", yytext, yyleng);
 {open_par}	        printf("open_par: %s, length: %d\n", yytext, yyleng);
 {close_par}	        printf("close_par: %s, length: %d\n", yytext, yyleng);
+.
 %%
 
 
