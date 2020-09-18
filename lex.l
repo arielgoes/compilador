@@ -23,7 +23,7 @@ smaller		    "<"
 greater_equal   ">="
 smaller_equal   "<="
 equal		    "=="
-diff		    "/="
+diff		    "!="
 assignment      "="
 and		        "&&"
 or		        "||"
@@ -32,6 +32,7 @@ open_par	    "\("
 close_par	    "\)"
 open_bracket	"{"
 close_bracket	"}"
+semi_collon     ";"
 quote		    "\""
 while           "while"
 for             "for"
@@ -44,24 +45,11 @@ int             "int"
 switch          "switch"
 case            "case"
 double          "double"
+char            "char"
+space           [ \t\r\n]
 
-
-
-/*OPERAÇÕES MATEMÁTICAS*/
-
-/*binary_operators	{sum}|{sub}|{mult}|{div}*/
-/*incr_operation      {digit}{incr}*/
-/*decr_operation      {digit}{decr}*/
-/*operations          {digit}{binary_operators}{digit}*/
-
-/*OPERAÇÕES LÓGICAS*/
-
-/*math_logic      	{digit}({smaller}|{greater}|{equal}|{diff}|{greater_equal}|{smaller_equal}){digit}*/
-/*binary_logic	    {and}|{or}*/
-/*unary_logic		{not}*/
 
 /*ESTRUTURAS*/
-
 %%
 {digit} 	        printf("digit: %s, length: %d\n", yytext, yyleng);
 {int}               printf("int: %s, length: %d\n", yytext, yyleng);
@@ -73,6 +61,7 @@ double          "double"
 {close_bracket}		printf("close_bracket: %s, length: %d\n", yytext, yyleng);
 {open_par}	        printf("open_par: %s, length: %d\n", yytext, yyleng);
 {close_par}	        printf("close_par: %s, length: %d\n", yytext, yyleng);
+{incr}              printf("incr: %s, length: %d\n", yytext, yyleng);
 .
 %%
 
@@ -100,5 +89,6 @@ int main(){
 	yyin = fopen("text.txt", "r");
 	yylex();
 	printf("\n");
+	fclose(yyin);
 	return 0;
 }

@@ -1,11 +1,11 @@
 #programa teste: ariel e victor
 
 int foo(int i){
-	
+	for (i = 0; i < 10; i++){
+		printf("eai man kk\n");
+	}
 }
-for (i = 0; i < 10; i++){
-	printf("eai man kk\n");
-}
+
 
 int main(){
 	int i = 0;
