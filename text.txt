@@ -2,10 +2,9 @@
 
 int foo(int i){
 	for (i = 0; i < 10; i++){
-		printf("eai man kk\n");
+		printf("eai man kk");
 	}
 }
-
 
 int main(){
 	int i = 0;
