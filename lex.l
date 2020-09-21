@@ -23,8 +23,7 @@ E         ([Ee][+-]?{D}+)
 "&"							{count(); return('&');}
 ";"							{count(); return(';');}
 "="							{count(); return('=');}
-">"							{count(); return('>');}
-"<"							{count(); return('<');}
+
 "\("						{count(); return('(');}
 "\)"						{count(); return(')');}
 "{"							{count(); return('{');}
@@ -34,12 +33,15 @@ E         ([Ee][+-]?{D}+)
 
 "++"						{count(); return(INCR);}
 "--"						{count(); return(DECR);}
-">="						{count(); return(GREATER_EQUAL);}
-"<="						{count(); return(SMALLER_EQUAL);}
-"=="						{count(); return(EQUAL);}
-"!="						{count(); return(DIFF);}
+"<="						{count(); return(LE);}
+">="						{count(); return(GE);}
+"=="						{count(); return(EQ);}
+"!="						{count(); return(NE);}
+">"							{count(); return(GT);}
+"<"							{count(); return(LT);}
 "&&"						{count(); return(AND);}
 "||"						{count(); return(OR);}
+
 "while"						{count(); return(WHILE);} 
 "for"						{count(); return(FOR);}
 "if"						{count(); return(IF);}
@@ -64,8 +66,9 @@ L?\"\(\\.|[^\\"\n]\)*\"		{count(); return(STRING_LITERAL);}
 {D}+                   		{count(); return(CONSTANT);} /*integer*/
 {D}*"."{D}+{E}?				{count(); return(CONSTANT);} /*float*/
 {D}+"."{D}*{E}?				{count(); return(CONSTANT);} /*float*/
+{L}({L}|{D})* 				{count(); return(IDENTIFIER);} /*identififier (e.g., foo, a, myVar, myFunc)*/ 
 
-[ \t\r\n]					{count();}
+[ \t\v\n\f]					{count();}
 .							
 
 %%
