@@ -50,7 +50,7 @@ L?#(\\.|[^\\"\n])* 			{count(); return(COMMENT);}
 "default"					{count(); return(DEFAULT);}
 
 L?'(\\.|[^\\'\n])'			{count(); return(CONSTANT);} /*char*/
-L?\"(\\.|[^\\"\n])*\"		{count(); return(STRING_LITERAL);} /*string/
+L?\"(\\.|[^\\"\n])*\"		{count(); return(STRING_LITERAL);} /*string*/
 
 "float"						{count(); return(FLOAT);}
 "double"					{count(); return(DOUBLE);}
@@ -60,8 +60,8 @@ L?\"(\\.|[^\\"\n])*\"		{count(); return(STRING_LITERAL);} /*string/
 "bool"						{count(); return(BOOL);}
 
 {D}+                   		{count(); return(CONSTANT);} /*integer*/
-{D}*"."{D}+{E}?				{count(); return(CONSTANT);} /*float
-{D}+"."{D}*{E}?				{count(); return(CONSTANT);} /*float
+{D}*"."{D}+{E}?				{count(); return(CONSTANT);} /*float*/
+{D}+"."{D}*{E}?				{count(); return(CONSTANT);} /*float*/
 
 [ \t\r\n]					{count();}
 .							{printf("Invalid character!");}
