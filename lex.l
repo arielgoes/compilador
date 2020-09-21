@@ -1,14 +1,11 @@
 %{
 #include <stdio.h>
 #include <stdlib.h>
-#include "y.tab.h" /*table of symbols (linkage between 'lex' and 'yacc')*/
 %}
 
 D      	  [0-9]
 L		  [a-zA-Z_]
 E         ([Ee][+-]?{D}+)
-
-%%
 
 L?#(\\.|[^\\"\n])* 			{count(); return(COMMENT);}
 
@@ -66,7 +63,7 @@ L?\"(\\.|[^\\"\n])*\"		{count(); return(STRING_LITERAL);} /*string*/
 [ \t\r\n]					{count();}
 .							{printf("Invalid character!");}
 
-
+%%
 %%
 
 int column = 0;
