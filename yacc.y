@@ -21,6 +21,26 @@ postfix_expression
 	| postfix_expression DECR
 	;
 
+assignment_expression
+	: '!'
+	;
+
+cast_expression
+	: '?'
+	;
+
+declaration
+	: '/'
+	;
+
+expression
+	: '/'
+	;
+
+function_definition
+	: '/'
+	;
+
 argument_expression_list
 	: assignment_expression
 	| argument_expression_list ',' assignment_expression
@@ -90,7 +110,7 @@ external_declaration
 extern char yytext[];
 extern int column;
 
-void yyerror(char const *s)
-{
+void yyerror(char const *s){
 	fflush(stdout);
 	printf("\n%*s\n%*s\n", column, "^", column, s);
+}
