@@ -1,13 +1,8 @@
 # compilador
-Compiladores - Compilador
+Compiladores - Compiler
 
+yacc –d bas.y          # create y.tab.h, y.tab.c
 
+lex bas.l              # create lex.yy.c
 
-Commando
-
-
-flex lex.l
-
-gcc lex.yy.c -o lex -lfl
-
-./lex
+cc lex.yy.c y.tab.c    # compile/link
