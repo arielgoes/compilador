@@ -1,6 +1,6 @@
-#programa teste: ariel e victor
+//programa teste: ariel e victor
 
-int foo(int i){
+float foo(int i){
 	for (i = 0; i < 10; i++){
 		printf("eai man kk");
 	}

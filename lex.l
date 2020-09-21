@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "y.tab.h" /*table of symbols (linkage between 'lex' and 'yacc')*/
+extern void yyerror(const char *);  /* prints grammar violation message */
 void count(void);
 %}
 
@@ -11,7 +12,7 @@ E         ([Ee][+-]?{D}+)
 
 %%
 
-"##"[^\n]*				 	{}
+"//"[^\n]*				 	
 
 "+"							{count(); return('+');}
 "-"							{count(); return('-');}
@@ -50,8 +51,8 @@ E         ([Ee][+-]?{D}+)
 "case"						{count(); return(CASE);} 
 "default"					{count(); return(DEFAULT);}
 
-L?'(\\.|[^\\'\n])'			{count(); return(CONSTANT);} /*char*/
-L?\"(\\.|[^\\"\n])*\"		{count(); return(STRING_LITERAL);} /*string*/
+L?'\(\\.|[^\\'\n]\)'		{count(); return(CONSTANT);}
+L?\"\(\\.|[^\\"\n]\)*\"		{count(); return(STRING_LITERAL);}
 
 "float"						{count(); return(FLOAT);}
 "double"					{count(); return(DOUBLE);}
@@ -65,9 +66,14 @@ L?\"(\\.|[^\\"\n])*\"		{count(); return(STRING_LITERAL);} /*string*/
 {D}+"."{D}*{E}?				{count(); return(CONSTANT);} /*float*/
 
 [ \t\r\n]					{count();}
-.							{printf("Invalid character!");}
+.							
 
 %%
+
+int yywrap(void)        /* called at end of input */
+{
+    return 1;           /* terminate now */
+}
 
 int column = 0;
 void count(void){
@@ -98,13 +104,5 @@ void comment(void)
 			return;
 		prev = c;
 	}
-	error("unterminated comment");
-}
-
-int main(){
-	yyin = fopen("text.txt", "r");
-	yylex();
-	printf("\n");
-	fclose(yyin);
-	return 0;
+	printf("unterminated comment");
 }
