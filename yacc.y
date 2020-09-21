@@ -1,17 +1,18 @@
-%token COMMENT INCR DECR GREATER SMALLER IDENTIFIER NOT
+%token INCR DECR GREATER SMALLER IDENTIFIER NOT
 %token GREATER_EQUAL SMALLER_EQUAL EQUAL DIFF ASSIGNMENT AND OR
 %token OPEN_PAR CLOSE_PAR OPEN_BRACKET CLOSE_BRACKET SEMI_COLLON
 %token QUOTE WHILE FOR IF ELSE BREAK CONTINUE RETURN SWITCH CASE
 %token DEFAULT FLOAT INT CHAR VOID STRING_LITERALL CONSTANT BOOL
 
 %%
-
+/*Examples: 'variables, constants, expressions'*/
 primary_expression
 	: IDENTIFIER
 	| CONSTANT
 	| '(' expression ')'
 	;
 
+/*Examples: 'a[5], func(int a, int b), a++, b--'*/ 
 postfix_expression
 	: primary_expression
 	| postfix_expression '[' expression ']'
@@ -21,29 +22,15 @@ postfix_expression
 	| postfix_expression DECR
 	;
 
-assignment_expression
-	: '!'
-	;
-
-cast_expression
-	: '?'
-	;
-
-declaration
-	: '/'
-	;
-
-expression
-	: '/'
-	;
-
-function_definition
-	: '/'
-	;
-
+/*Examples: 'a = 5, a, b = 5'*/
 argument_expression_list
 	: assignment_expression
 	| argument_expression_list ',' assignment_expression
+	;
+
+assignment_expression
+	: conditional_expression
+	| unary_expression assignment_operator assignment_expression
 	;
 
 unary_expression

@@ -1,13 +1,17 @@
 %{
 #include <stdio.h>
 #include <stdlib.h>
+#include "y.tab.h" /*table of symbols (linkage between 'lex' and 'yacc')*/
+void count(void);
 %}
 
 D      	  [0-9]
 L		  [a-zA-Z_]
 E         ([Ee][+-]?{D}+)
 
-L?#(\\.|[^\\"\n])* 			{count(); return(COMMENT);}
+%%
+
+"##"[^\n]*				 	{}
 
 "+"							{count(); return('+');}
 "-"							{count(); return('-');}
@@ -64,7 +68,6 @@ L?\"(\\.|[^\\"\n])*\"		{count(); return(STRING_LITERAL);} /*string*/
 .							{printf("Invalid character!");}
 
 %%
-%%
 
 int column = 0;
 void count(void){
@@ -83,6 +86,19 @@ void count(void){
 		}
 	}
 	ECHO;
+}
+
+void comment(void)
+{
+	char c, prev = 0;
+  
+	while ((c = input()) != 0)      /* (EOF maps to 0) */
+	{
+		if (c == '#' && prev == '*')
+			return;
+		prev = c;
+	}
+	error("unterminated comment");
 }
 
 int main(){
