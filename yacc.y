@@ -1,4 +1,4 @@
-%token COMMENT INCR DECR GREATER SMALLER
+%token COMMENT INCR DECR GREATER SMALLER IDENTIFIER NOT
 %token GREATER_EQUAL SMALLER_EQUAL EQUAL DIFF ASSIGNMENT AND OR
 %token OPEN_PAR CLOSE_PAR OPEN_BRACKET CLOSE_BRACKET SEMI_COLLON
 %token QUOTE WHILE FOR IF ELSE BREAK CONTINUE RETURN SWITCH CASE
@@ -11,7 +11,6 @@ primary_expression
 	| CONSTANT
 	| '(' expression ')'
 	;
-
 
 postfix_expression
 	: primary_expression
@@ -61,7 +60,6 @@ jump_statement
 	| RETURN expression ';'
 	;
 
-
 multiplicative_expression
 	: cast_expression
 	| multiplicative_expression '*' cast_expression
@@ -75,10 +73,17 @@ additive_expression
 	| additive_expression '-' multiplicative_expression
 	;
 
+translation_unit
+	: external_declaration
+	| translation_unit external_declaration
+	;
 
+external_declaration
+	: function_definition
+	| declaration
+	;
 
 %%
-
 
 #include <stdio.h>
 
