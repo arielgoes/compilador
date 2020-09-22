@@ -9,12 +9,17 @@
 %left '+' '-'
 %left '*' '/' 
 
-%start begin
+%start translation_unit
 
 %%
 
 /* starting point for yacc */
-begin
+translation_unit
+	: external_declaration
+	| translation_unit external_declaration
+	;
+
+external_declaration
 	: function
 	| declaration
 	;
@@ -76,7 +81,7 @@ function_call : ID '(' ')'
 
 /* Function section */
 function
-    :type ID '(' arg_list_opt ')' compound_stmt
+    : type ID '(' arg_list_opt ')' compound_stmt
     ;
 
 arg_list_opt
@@ -172,5 +177,6 @@ void yyerror(char const *s){
 
 int main(void) {
 	yyparse();
+    printf("Parsing Completed!\n");
 	return 0;
 }
