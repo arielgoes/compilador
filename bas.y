@@ -1,7 +1,7 @@
-%token INCR DECR ID CONSTANT PRINTF
-%token GE LE EQ NE LT GT ASSIGNMENT AND OR NOT
-%token WHILE FOR IF ELSE BREAK CONTINUE RETURN
-%token FLOAT INT CHAR VOID BOOL DOUBLE
+%token INCR DECR ID CONSTANT PRINTF AND OR NOT
+%token GE LE EQ NE LT GT ASSIGNMENT 
+%token WHILE FOR IF ELSE ELIF BREAK CONTINUE RETURN
+%token FLOAT INT CHAR VOID BOOL DOUBLE 
 
 %right '='
 %left AND OR
@@ -135,9 +135,18 @@ for_stmt
 /* IfStmt Block */
 if_stmt 
     : IF '(' expr ')'
-    | IF '(' expr ')' compound_stmt
-    | IF '(' expr ')' compound_stmt ELSE compound_stmt
+    | IF '(' expr ')' compound_stmt elif_stmt
+    | IF '(' expr ')' compound_stmt else_stmt
     ;
+
+elif_stmt
+    : ELIF '(' expr ')' compound_stmt elif_stmt
+    | else_stmt
+    |
+    ;
+
+else_stmt
+    :ELSE compound_stmt
 
 /*expression Block*/
 expr   

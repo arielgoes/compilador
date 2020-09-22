@@ -37,7 +37,7 @@ void count(){
 			column = 0;
 		}
 		
-		else if (yytext[i] == '\t'){
+		elif (yytext[i] == '\t'){
 			column += 8 - (column % 8);
 		}
 		else{

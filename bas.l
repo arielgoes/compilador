@@ -48,12 +48,13 @@ E         ([Ee][+-]?{D}+)
 "while"						{count(); return(WHILE);} 
 "for"						{count(); return(FOR);}
 "if"						{count(); return(IF);}
+"elif"						{count(); return(ELIF)}
 "else"						{count(); return(ELSE);}
 "break"						{count(); return(BREAK);} 
 "continue"					{count(); return(CONTINUE);}
 "return"					{count(); return(RETURN);}
 
-L?'\(\\.|[^\\'\n]\)'		{count(); return(CONSTANT);}
+L?\'(\\.|[^\\'\n])\'		{count(); return(CONSTANT);}
 L?\"(\\.|[^\\"\n])*\"		{count(); return(CONSTANT);}
 
 
