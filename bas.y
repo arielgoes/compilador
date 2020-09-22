@@ -140,13 +140,16 @@ if_stmt
     ;
 
 elif_stmt
-    : ELIF '(' expr ')' compound_stmt elif_stmt
+    : ELIF '(' expr ')' stmt elif_stmt
+    | ELIF '(' expr ')' compound_stmt elif_stmt
     | else_stmt
     |
     ;
 
 else_stmt
-    :ELSE compound_stmt
+    : ELSE compound_stmt
+    | ELSE
+    ;
 
 /*expression Block*/
 expr   

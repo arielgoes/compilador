@@ -48,7 +48,7 @@ E         ([Ee][+-]?{D}+)
 "while"						{count(); return(WHILE);} 
 "for"						{count(); return(FOR);}
 "if"						{count(); return(IF);}
-"elif"						{count(); return(ELIF)}
+"elif"						{count(); return(ELIF);}
 "else"						{count(); return(ELSE);}
 "break"						{count(); return(BREAK);} 
 "continue"					{count(); return(CONTINUE);}
