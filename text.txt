@@ -1,13 +1,60 @@
 //programa teste: ariel e victor
 
-float foo(int i){
+/*float foo(int i){
 	for (i = 0; i < 9; i++){
 		printf("eai man kk");
 	}
-}
+}*/
 
 int main(){
-	int i = 0;
+	int i = 1;
 	foo(i);
+
+	if(i = 1){
+		a = 5;
+	}
+
+	if(a > 5){
+		printf("5");
+	}else{
+		printf("10");
+	}
+
 	return 0;
+}
+
+int yywrap()        /* called at end of input */
+{
+    return 1;           /* terminate now */
+}
+
+int column = 0;
+void count(){
+	int i;
+
+	for (i = 0; yytext[i] != '\0'; i++){
+		if (yytext[i] == '\n'){
+			column = 0;
+		}
+		
+		else if (yytext[i] == '\t'){
+			column += 8 - (column % 8);
+		}
+		else{
+			column++;
+		}
+	}
+}
+
+void comment(void)
+{
+	char c, prev = 0;
+  
+	while ((c = input()) != 0)      /* (EOF maps to 0) */
+	{
+		if (c == '/' && prev == '*')
+			return;
+		prev = c;
+	}
+	printf("unterminated comment");
 }
