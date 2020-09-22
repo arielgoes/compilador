@@ -1,12 +1,17 @@
-%token INCR DECR IDENTIFIER CONSTANT 
+%{
+    #define YYDEBUG 1
+%}
+
+%token INCR DECR ID CONSTANT PRINTF
 %token GE LE EQ NE LT GT ASSIGNMENT AND OR NOT
-%token OPEN_PAR CLOSE_PAR OPEN_BRACKET CLOSE_BRACKET SEMI_COLLON
-%token QUOTE WHILE FOR IF ELSE BREAK CONTINUE RETURN SWITCH CASE DEFAULT
-%token FLOAT INT CHAR VOID STRING_LITERAL BOOL DOUBLE
+%token WHILE FOR IF ELSE BREAK CONTINUE RETURN
+%token FLOAT INT CHAR VOID BOOL DOUBLE
 
 %right '='
 %left AND OR
 %left LE GE EQ NE LT GT
+%left '+' '-'
+%left '*' '/' 
 
 %start begin
 
@@ -29,8 +34,8 @@ declaration
 
 /* Assignment section */
 assignment
-	: IDENTIFIER '=' assignment
-	| IDENTIFIER '=' function_call
+	: ID '=' assignment
+	| ID '=' function_call
 	| array_usage '=' assignment
     | ID ',' assignment
     | CONSTANT ',' assignment
@@ -42,6 +47,8 @@ assignment
     | CONSTANT '-' assignment
     | CONSTANT '*' assignment
     | CONSTANT '/' assignment
+    | ID INCR
+    | ID DECR
     | '\'' assignment '\''
     | '(' assignment ')'
     | '-' '(' assignment ')'
@@ -53,7 +60,7 @@ assignment
 
 /* Array usage */
 array_usage
-	: IDENTIFIER '(' assignment ')'
+	: ID '[' assignment ']'
 	;
 
 /* Type section (does not include string yet) */
@@ -68,33 +75,82 @@ type
 
 /* Function call section */
 function_call : ID '(' ')'
-    | IDENTIFIER '(' assignment ')'
+    | ID '(' assignment ')'
     ;
 
 /* Function section */
-function: type IDENTIFIER '(' ArgListOpt ')' CompoundStmt
+function
+    :type ID '(' arg_list_opt ')' compound_stmt
     ;
-ArgListOpt: ArgList
+
+arg_list_opt
+    : arg_list
     |
     ;
-ArgList:  ArgList ',' Arg
-    | Arg
+
+arg_list
+    : arg_list ',' arg
+    | arg
     ;
-Arg:    Type ID
+    
+arg
+    : type ID
     ;
-CompoundStmt:   '{' StmtList '}'
+
+compound_stmt
+    : '{' stmt_list '}'
     ;
-StmtList:   StmtList Stmt
+
+stmt_list
+    : stmt_list stmt
     |
     ;
-Stmt: WhileStmt
-    | Declaration
-    | ForStmt
-    | IfStmt
-    | PrintFunc
+    
+stmt
+    : while_stmt
+    | declaration
+    | for_stmt
+    | if_stmt
+    | print_func
     | ';'
     ;
 
+/* Loop section */
+while_stmt
+    : WHILE '(' expr ')' stmt
+    | WHILE '(' expr ')' compound_stmt
+    ;
+
+/* For section */
+for_stmt
+    : FOR '(' expr ';' expr ';' expr ')' stmt
+    | FOR '(' expr ';' expr ';' expr ')' compound_stmt
+    | FOR '(' expr ')' stmt
+    | FOR '(' expr ')' compound_stmt
+    ;
+
+/* IfStmt Block */
+if_stmt 
+    : IF '(' expr ')'
+    | IF '(' expr ')' compound_stmt
+    ;
+
+/*expression Block*/
+expr   
+    : expr LE expr
+    | expr GE expr
+    | expr NE expr
+    | expr EQ expr
+    | expr GT expr
+    | expr LT expr
+    | assignment
+    | array_usage
+    ;
+
+/* Print Function */
+print_func 
+    : PRINTF '(' expr ')' ';'
+    ;
 %%
 
 #include <stdio.h>

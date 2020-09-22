@@ -1,3 +1,4 @@
+
 %{
 #include <stdio.h>
 #include <stdlib.h>
@@ -42,6 +43,8 @@ E         ([Ee][+-]?{D}+)
 "&&"						{count(); return(AND);}
 "||"						{count(); return(OR);}
 
+"printf"					{count(); return(PRINTF);}
+
 "while"						{count(); return(WHILE);} 
 "for"						{count(); return(FOR);}
 "if"						{count(); return(IF);}
@@ -49,12 +52,10 @@ E         ([Ee][+-]?{D}+)
 "break"						{count(); return(BREAK);} 
 "continue"					{count(); return(CONTINUE);}
 "return"					{count(); return(RETURN);}
-"switch"					{count(); return(SWITCH);}
-"case"						{count(); return(CASE);} 
-"default"					{count(); return(DEFAULT);}
 
 L?'\(\\.|[^\\'\n]\)'		{count(); return(CONSTANT);}
-L?\"\(\\.|[^\\"\n]\)*\"		{count(); return(STRING_LITERAL);}
+L?\"(\\.|[^\\"\n])*\"		{count(); return(CONSTANT);}
+
 
 "float"						{count(); return(FLOAT);}
 "double"					{count(); return(DOUBLE);}
@@ -66,7 +67,7 @@ L?\"\(\\.|[^\\"\n]\)*\"		{count(); return(STRING_LITERAL);}
 {D}+                   		{count(); return(CONSTANT);} /*integer*/
 {D}*"."{D}+{E}?				{count(); return(CONSTANT);} /*float*/
 {D}+"."{D}*{E}?				{count(); return(CONSTANT);} /*float*/
-{L}({L}|{D})* 				{count(); return(IDENTIFIER);} /*identififier (e.g., foo, a, myVar, myFunc)*/ 
+{L}({L}|{D})* 				{count(); return(ID);} /*identififier (e.g., foo, a, myVar, myFunc)*/ 
 
 [ \t\v\n\f]					{count();}
 .							
