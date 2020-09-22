@@ -1,3 +1,6 @@
+%{
+#define YYDEBUG 1
+%}
 %token INCR DECR ID CONSTANT PRINTF AND OR NOT
 %token GE LE EQ NE LT GT ASSIGNMENT 
 %token WHILE FOR IF ELSE ELIF BREAK CONTINUE RETURN
@@ -44,10 +47,12 @@ assignment
     | ID '-' assignment
     | ID '*' assignment
     | ID '/' assignment
+    | ID '%' assignment
     | CONSTANT '+' assignment
     | CONSTANT '-' assignment
     | CONSTANT '*' assignment
     | CONSTANT '/' assignment
+    | CONSTANT '%' assignment
     | ID INCR
     | ID DECR
     | '\'' assignment '\''
@@ -120,35 +125,28 @@ stmt
 
 /* Loop section */
 while_stmt
-    : WHILE '(' expr ')' stmt
-    | WHILE '(' expr ')' compound_stmt
+    : WHILE '(' expr ')' compound_stmt
     ;
 
 /* For section */
 for_stmt
-    : FOR '(' expr ';' expr ';' expr ')' stmt
-    | FOR '(' expr ';' expr ';' expr ')' compound_stmt
-    | FOR '(' expr ')' stmt
+    : FOR '(' expr ';' expr ';' expr ')' compound_stmt
     | FOR '(' expr ')' compound_stmt
     ;
 
 /* IfStmt Block */
 if_stmt 
-    : IF '(' expr ')'
-    | IF '(' expr ')' compound_stmt elif_stmt
-    | IF '(' expr ')' compound_stmt else_stmt
+    : IF '(' expr ')' compound_stmt else_elif_stmt
     ;
 
-elif_stmt
-    : ELIF '(' expr ')' stmt elif_stmt
-    | ELIF '(' expr ')' compound_stmt elif_stmt
+else_elif_stmt
+    : ELIF '(' expr ')' compound_stmt else_elif_stmt
     | else_stmt
     |
     ;
 
 else_stmt
     : ELSE compound_stmt
-    | ELSE
     ;
 
 /*expression Block*/

@@ -38,7 +38,7 @@ void count(){
 		}
 		
 		elif (yytext[i] == '\t'){
-			column += 8 - (column % 8);
+			column = column + 8 - (column % 8);
 		}
 		else{
 			column++;
