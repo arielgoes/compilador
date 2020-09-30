@@ -24,7 +24,7 @@ E         ([Ee][+-]?{D}+)
 "&"							{count(); return('&');}
 ";"							{count(); return(';');}
 "="							{count(); return('=');}
-
+","							{count(); return(',');}
 "\("						{count(); return('(');}
 "\)"						{count(); return(')');}
 "{"							{count(); return('{');}

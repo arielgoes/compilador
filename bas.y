@@ -1,5 +1,6 @@
 %{
 #define YYDEBUG 1
+include "node.h"
 %}
 %token INCR DECR ID CONSTANT PRINTF AND OR NOT
 %token GE LE EQ NE LT GT ASSIGNMENT 
@@ -19,7 +20,7 @@
 /* starting point for yacc */
 translation_unit
 	: external_declaration
-	| translation_unit external_declaration
+	| external_declaration translation_unit
 	;
 
 external_declaration
@@ -157,6 +158,8 @@ expr
     | expr EQ expr
     | expr GT expr
     | expr LT expr
+    | expr AND expr
+    | expr OR expr
     | assignment
     | array_usage
     ;

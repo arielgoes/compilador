@@ -46,15 +46,15 @@ void count(){
 	}
 }
 
-void comment(void)
-{
+void comment(){
 	char c, prev = 0;
   
 	while ((c = input()) != 0)      /* (EOF maps to 0) */
 	{
-		if (c == '/' && prev == '*')
+		if (c == '/' && prev == '*'){
 			return;
 		prev = c;
+		}
 	}
 	printf("unterminated comment");
 }
