@@ -8,6 +8,8 @@ float foo(int i){
 
 int main(){
 	int i = 1;
+	float f = 10;
+	10/10;
 	foo(i);
 
 	if(i = 1){

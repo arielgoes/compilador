@@ -54,10 +54,6 @@ E         ([Ee][+-]?{D}+)
 "continue"					{count(); return(CONTINUE);}
 "return"					{count(); return(RETURN);}
 
-L?\'(\\.|[^\\'\n])\'		{count(); return(CONSTANT);}
-L?\"(\\.|[^\\"\n])*\"		{count(); return(CONSTANT);}
-
-
 "float"						{count(); return(FLOAT);}
 "double"					{count(); return(DOUBLE);}
 "int"						{count(); return(INT);} 
@@ -65,9 +61,13 @@ L?\"(\\.|[^\\"\n])*\"		{count(); return(CONSTANT);}
 "void"						{count(); return(VOID);}
 "bool"						{count(); return(BOOL);}
 
-{D}+                   		{count(); return(CONSTANT);} /*integer*/
-{D}*"."{D}+{E}?				{count(); return(CONSTANT);} /*float*/
-{D}+"."{D}*{E}?				{count(); return(CONSTANT);} /*float*/
+L?\'(\\.|[^\\'\n])\'		{count(); return(CONSTANT);} 	/*char*/
+L?\"(\\.|[^\\"\n])*\"		{count(); return(CONSTANT);} 	/*string*/
+{D}+                   		{count(); return(CONSTANT);} 	/*integer*/
+{D}*"."{D}+{E}?				{count(); return(CONSTANT);} 	/*float*/
+{D}+"."{D}*{E}?				{count(); return(CONSTANT);} 	/*float*/
+															/*booleano*/ 
+
 {L}({L}|{D})* 				{count(); return(ID);} /*identififier (e.g., foo, a, myVar, myFunc)*/ 
 
 [ \t\v\n\f]					{count();}
