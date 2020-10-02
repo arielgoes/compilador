@@ -1,6 +1,7 @@
 %{
     #define YYDEBUG 1
     #include "node.h"
+    extern Node * syntax_tree;
 %}
 %token INCR DECR ID CONSTANT PRINTF AND OR NOT
 %token GE LE EQ NE LT GT ASSIGNMENT 
@@ -19,8 +20,8 @@
 
 /* starting point for yacc */
 translation_unit
-	: external_declaration /*{  $$ = create_node(@1.first_line, code_node, "external_declaration", $1); syntax_tree = $$;}*/ {printf("%d.%d-%d.%d: %d", @$.first_line, @$.first_column, @$.last_line, @$.last_column, $1);}
-	| external_declaration translation_unit /*{  $$ = create_node(@1.first_line, code_node, NULL, $1, $2); syntax_tree = $$;}*/
+	: external_declaration 
+	| external_declaration translation_unit { $$ = create_node(@1.first_line, code_node, NULL, $1, $2); syntax_tree = $$;}
 	;
 
 external_declaration
@@ -44,17 +45,7 @@ assignment
 	| array_usage '=' assignment
     | ID ',' assignment
     | CONSTANT ',' assignment
-    | ID '+' assignment{
-                            if ($3)
-                                $$ = $1 / $3;
-                            else
-                                {
-                                    $$ = 1;
-                                    fprintf (stderr, "%d.%d-%d.%d: division by zero",
-                                            @3.first_line, @3.first_column,
-                                            @3.last_line, @3.last_column);
-                                }
-                        }
+    | ID '+' assignment
     | ID '-' assignment
     | ID '*' assignment
     | ID '/' assignment 
