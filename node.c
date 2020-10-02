@@ -31,7 +31,89 @@ Node* create_node(int nl, Node_type t, char& lexeme, /*Node children*/ ...){
     va_end(ap);
 
     return new_node;
-
 }
 
 
+int nb_of_children(Node* n){
+    if(n == NULL){
+        printf("ERROR: nb_of_children is NULL!\n");
+        return -1;
+    }
+    
+    return n->n_child;
+}
+
+
+int is_leaf(Node* n){
+    if(n == NULL){
+        printf("ERROR: is_leaf is NULL!\n");
+        return -1;
+    }
+    
+    return n->n_child == 0;
+}
+
+
+Node* child(Node* n, int i){
+    if(n == NULL){
+        printf("ERROR: child is NULL!\n");
+        return -1;
+    }else if(0 <= i && (unsigned int)i < n->n_child){
+        printf("ERROR: child is NULL!\n");
+        return -2;
+    }
+
+    return n->children[i];
+}
+
+
+int deep_free_node(Node* n){ //revisar... ta meio errado
+    if(n == NULL){
+        free(n);
+        return 0;
+    }
+
+    size_t numChildren = sizeof(n->children)/sizeof(n->children[0]);
+    for(int i = 0; i < numChildren; i++){
+        deep_free_node(n->children[i]);
+    }
+
+    return 1;
+}
+
+
+int max(int *p){
+	int i = 0;
+	int aux = -1;
+	for(int i = 0; i < sizeof(p)/sizeof(int); i++){
+		if(p[i] > aux){
+			aux = p[i];
+		} 
+	}
+
+	return aux;
+}
+
+
+int height(Node* n){
+	assert(n != NULL);
+	int h = 0;
+	int *p;
+	if(n->n_child != 0){
+		int i = 0;
+		for(i = 0; n->children[i] != NULL; n = n->children[i++]){
+			//h = height(n->children[i]);
+			p[i] = height(n->children[i]); 
+		}
+
+		h + max(p);
+	}
+	return h + 1;
+}
+
+
+void uncompile(FILE* outfile, Node *n){ //fazer...
+	if(n != NULL){
+		//Code ...
+	}
+}
