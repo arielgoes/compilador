@@ -68,10 +68,8 @@ Node* child(Node* n, int i){
 
 
 int deep_free_node(Node* n){ //revisar... ta meio errado
-    if(n == NULL){
-        free(n);
-        return 0;
-    }
+    
+    
 
     size_t numChildren = sizeof(n->children)/sizeof(n->children[0]);
     for(int i = 0; i < numChildren; i++){
