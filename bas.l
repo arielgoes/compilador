@@ -1,10 +1,11 @@
 
 %{
-#include <stdio.h>
-#include <stdlib.h>
-#include "y.tab.h" /*table of symbols (linkage between 'lex' and 'yacc')*/
-extern void yyerror(const char *);  /* prints grammar violation message */
-void count(void);
+	#include <stdio.h>
+	#include <stdlib.h>
+	#include "y.tab.h" /*table of symbols (linkage between 'lex' and 'yacc')*/
+	extern void yyerror(const char *);  /* prints grammar violation message */
+	void comment(void);
+	void count(void);
 %}
 
 D      	  [0-9]
@@ -99,8 +100,7 @@ void count(void){
 	ECHO;
 }
 
-void comment(void)
-{
+void comment(void){
 	char c, prev = 0;
   
 	while ((c = input()) != 0)      /* (EOF maps to 0) */

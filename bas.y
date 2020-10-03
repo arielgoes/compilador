@@ -1,12 +1,19 @@
 %{
-    #define YYDEBUG 1
+    #include <stdlib.h>
     #include "node.h"
     extern Node * syntax_tree;
+    extern void yyerror(const char *);  /* prints grammar violation message */
 %}
 %token INCR DECR ID CONSTANT PRINTF AND OR NOT
 %token GE LE EQ NE LT GT ASSIGNMENT 
 %token WHILE FOR IF ELSE ELIF BREAK CONTINUE RETURN
-%token FLOAT INT CHAR VOID BOOL DOUBLE 
+%token FLOAT INT CHAR VOID BOOL DOUBLE
+
+%union{
+    struct node* no;
+    char* lexeme;
+};
+
 
 %right '='
 %left AND OR
@@ -18,10 +25,11 @@
 
 %%
 
+
 /* starting point for yacc */
 translation_unit
 	: external_declaration 
-	| external_declaration translation_unit { $$ = create_node(@1.first_line, code_node, NULL, $1, $2); syntax_tree = $$;}
+	| external_declaration translation_unit
 	;
 
 external_declaration
@@ -45,7 +53,7 @@ assignment
 	| array_usage '=' assignment
     | ID ',' assignment
     | CONSTANT ',' assignment
-    | ID '+' assignment
+    | ID '+' assignment 
     | ID '-' assignment
     | ID '*' assignment
     | ID '/' assignment 

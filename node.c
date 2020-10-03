@@ -68,12 +68,15 @@ Node* child(Node* n, int i){
 
 
 int deep_free_node(Node* n){ //revisar... ta meio errado
-    
-    
 
-    size_t numChildren = sizeof(n->children)/sizeof(n->children[0]);
+    if(n == NULL){
+        return 0;
+    }
+    
+    int numChildren = sizeof(n->children)/sizeof(n->children[0]);
     for(int i = 0; i < numChildren; i++){
         deep_free_node(n->children[i]);
+        free(n);
     }
 
     return 1;
@@ -112,6 +115,12 @@ int height(Node* n){
 
 void uncompile(FILE* outfile, Node *n){ //fazer...
 	if(n != NULL){
-		//Code ...
+		printf("n->lexeme: \n" + n->lexeme);
+        return;
+        int numChildren = sizeof(n->children)/sizeof(n->children[0]);
+        for(int i = 0; i < numChildren; i++){
+            uncompile(outfile, n->children[i]);
+        }
 	}
+    return;
 }

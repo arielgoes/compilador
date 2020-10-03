@@ -22,7 +22,7 @@ typedef int Node_type;
 /* Serie de constantes que servirao para definir tipos de nos (na arvore). 
  * Essa serie pode ser completada ou alterada a vontade.
  */
-#define translation_node            500
+#define translation_unit_node       500
 #define external_node               501
 #define function_node               502
 #define declaration_node            503
