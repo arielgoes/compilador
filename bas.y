@@ -3,6 +3,7 @@
     #include "node.h"
     extern Node * syntax_tree;
     extern void yyerror(const char *);  /* prints grammar violation message */
+    extern int yylex();
 %}
 %token INCR DECR
 %token GE LE EQ NE LT GT AND OR NOT
@@ -23,67 +24,69 @@
 %left '+' '-'
 %left '*' '/' 
 
+%type<no> atree
+%type<no> translation_unit       
+%type<no> external_declaration               
+%type<no> function               
+%type<no> declaration            
+%type<no> type                   
+%type<no> assignment             
+%type<no> function_call           
+%type<no> array_usage            
+%type<no> ID                     
+%type<no> CONSTANT               
+%type<no> INCR                   
+%type<no> DECR                   
+%type<no> FLOAT                  
+%type<no> INT                    
+%type<no> CHAR                   
+%type<no> VOID                   
+%type<no> BOOL                   
+%type<no> DOUBLE                 
+%type<no> arg_list_opt           
+%type<no> arg_list               
+%type<no> arg                    
+%type<no> compound_stmt          
+%type<no> stmt_list              
+%type<no> stmt                   
+%type<no> while_stmt             
+%type<no> for_stmt               
+%type<no> if_stmt                
+%type<no> print_func             
+%type<no> jump_statement         
+%type<no> WHILE                  
+%type<no> FOR                   
+%type<no> IF                     
+%type<no> expr                   
+%type<no> else_elif_stmt         
+%type<no> ELIF                   
+%type<no> else_stmt              
+%type<no> ELSE                   
+%type<no> LE                     
+%type<no> GE                     
+%type<no> NE                     
+%type<no> EQ                     
+%type<no> GT                     
+%type<no> LT                     
+%type<no> AND                    
+%type<no> OR                     
+%type<no> CONTINUE               
+%type<no> BREAK                  
+%type<no> RETURN                 
+%type<no> PRINTF                 
 
-%token<no> translation_unit       
-%token<no> external               
-%token<no> function               
-%token<no> declaration            
-%token<no> type                   
-%token<no> assignment             
-%token<no> functioncall           
-%token<no> array_usage            
-%token<no> id                     
-%token<no> constant               
-%token<no> incr                   
-%token<no> decr                   
-%token<no> float                  
-%token<no> int                    
-%token<no> char                   
-%token<no> void                   
-%token<no> bool                   
-%token<no> double                 
-%token<no> arg_list_opt           
-%token<no> arg_list               
-%token<no> arg                    
-%token<no> compound_stmt          
-%token<no> stmt_list              
-%token<no> stmt                   
-%token<no> while_stmt             
-%token<no> for_stmt               
-%token<no> if_stmt                
-%token<no> print_func             
-%token<no> jump_statement         
-%token<no> while                  
-%token<no> for                    
-%token<no> if                     
-%token<no> expr                   
-%token<no> else_elif_stmt         
-%token<no> elif                   
-%token<no> else_stmt              
-%token<no> else                   
-%token<no> le                     
-%token<no> ge                     
-%token<no> ne                     
-%token<no> eq                     
-%token<no> gt                     
-%token<no> lt                     
-%token<no> and                    
-%token<no> or                     
-%token<no> continue               
-%token<no> break                  
-%token<no> return                 
-%token<no> printf                 
 
-
-%start translation_unit
-
+%start atree
 %%
 
+atree:
+    translation_unit /*{print_node($1);}*/
+    ; 
 
 /* starting point for yacc */
 translation_unit
-	: external_declaration 
-	| external_declaration translation_unit
+	: external_declaration /*{$$ = $1;}*/
+	| external_declaration translation_unit {$$=create_node(yylineno, translation_unit_node, NULL, $1, $2);}
 	;
 
 external_declaration

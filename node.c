@@ -124,3 +124,24 @@ void uncompile(FILE* outfile, Node *n){ //fazer...
 	}
     return;
 }
+
+void print_node(Node* node){
+    printf("%s<Tree lineNo=\"%d\" nodeType=\"%s\" string=\"%s\" value=\"%s\" dataType=\"%s\">\n", 
+        indent,
+        node->lineNo,
+        node->nodeType,
+        node->string,
+        node->value, 
+        node->dataType);
+    int i;
+    if (node->Nchildren > 0){
+        printf("%s<Child>\n", indent);
+        incIndent();
+        for (i=0;i<node->Nchildren;i++){
+            printNode(node->child[i]);
+        }
+        decIndent();
+        printf("%s</Child>\n", indent);
+    }
+    printf("%s</Tree>\n", indent);
+}

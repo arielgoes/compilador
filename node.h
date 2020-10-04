@@ -28,7 +28,7 @@ typedef int Node_type;
 #define declaration_node            503
 #define type_node                   504
 #define assignment_node             505
-#define functioncall_node           506
+#define function_call_node          506
 #define array_usage_node            507
 #define id_node                     508
 #define constant_node               509
@@ -73,13 +73,13 @@ typedef int Node_type;
 #define printf_node                 548
 
 /** Estrutura de dados parcial para o no da arvore. */
-typedef struct _node {
+typedef struct node {
    int line_num;                    /**< numero de linha. */
    char* lexeme;                    /**< o lexema retornado pelo analizador lexical. */
    Node_type type;                  /**< Um dos valores definidos acima pelos # defines. */
    void* attribute;                 /**< Qualquer coisa por enquanto. */
 
-   struct _node** children;
+   struct node** children;
    unsigned int n_child;
 
 } Node;
@@ -143,6 +143,8 @@ int height(Node *n) ;
  *
  */
 void uncompile(FILE* outfile, Node *n) ;
+
+void print_node(Node* node) ;
 
 
 #endif
