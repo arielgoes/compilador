@@ -4,22 +4,76 @@
     extern Node * syntax_tree;
     extern void yyerror(const char *);  /* prints grammar violation message */
 %}
-%token INCR DECR ID CONSTANT PRINTF AND OR NOT
-%token GE LE EQ NE LT GT ASSIGNMENT 
+%token INCR DECR
+%token GE LE EQ NE LT GT AND OR NOT
+%token PRINTF
 %token WHILE FOR IF ELSE ELIF BREAK CONTINUE RETURN
 %token FLOAT INT CHAR VOID BOOL DOUBLE
+%token CONSTANT
+%token ID
 
 %union{
     struct node* no;
     char* lexeme;
 };
 
-
 %right '='
 %left AND OR
 %left LE GE EQ NE LT GT
 %left '+' '-'
 %left '*' '/' 
+
+
+%token<no> translation_unit       
+%token<no> external               
+%token<no> function               
+%token<no> declaration            
+%token<no> type                   
+%token<no> assignment             
+%token<no> functioncall           
+%token<no> array_usage            
+%token<no> id                     
+%token<no> constant               
+%token<no> incr                   
+%token<no> decr                   
+%token<no> float                  
+%token<no> int                    
+%token<no> char                   
+%token<no> void                   
+%token<no> bool                   
+%token<no> double                 
+%token<no> arg_list_opt           
+%token<no> arg_list               
+%token<no> arg                    
+%token<no> compound_stmt          
+%token<no> stmt_list              
+%token<no> stmt                   
+%token<no> while_stmt             
+%token<no> for_stmt               
+%token<no> if_stmt                
+%token<no> print_func             
+%token<no> jump_statement         
+%token<no> while                  
+%token<no> for                    
+%token<no> if                     
+%token<no> expr                   
+%token<no> else_elif_stmt         
+%token<no> elif                   
+%token<no> else_stmt              
+%token<no> else                   
+%token<no> le                     
+%token<no> ge                     
+%token<no> ne                     
+%token<no> eq                     
+%token<no> gt                     
+%token<no> lt                     
+%token<no> and                    
+%token<no> or                     
+%token<no> continue               
+%token<no> break                  
+%token<no> return                 
+%token<no> printf                 
+
 
 %start translation_unit
 
