@@ -1,5 +1,5 @@
 %{
-	
+	#include <stdio.h>
 	#include <stdlib.h>
 	#include "y.tab.h" /*table of symbols (linkage between 'lex' and 'yacc')*/
 	extern void yyerror(const char *);  /* prints grammar violation message */
@@ -33,18 +33,18 @@ E         ([Ee][+-]?{D}+)
 "["							{count(); return('[');}
 "]"							{count(); return(']');}
 
-"++"						{count(); return(INCR);}
-"--"						{count(); return(DECR);}
-"<="						{count(); return(LE);}
-">="						{count(); return(GE);}
-"=="						{count(); return(EQ);}
-"!="						{count(); return(NE);}
-">"							{count(); return(GT);}
-"<"							{count(); return(LT);}
-"&&"						{count(); return(AND);}
-"||"						{count(); return(OR);}
+"++"						{count(); yylval.str = strdup(yytext); return(INCR);}
+"--"						{count(); yylval.str = strdup(yytext); return(DECR);}
+"<="						{count(); yylval.str = strdup(yytext); return(LE);}
+">="						{count(); yylval.str = strdup(yytext); return(GE);}
+"=="						{count(); yylval.str = strdup(yytext); return(EQ);}
+"!="						{count(); yylval.str = strdup(yytext); return(NE);}
+">"							{count(); yylval.str = strdup(yytext); return(GT);}
+"<"							{count(); yylval.str = strdup(yytext); return(LT);}
+"&&"						{count(); yylval.str = strdup(yytext); return(AND);}
+"||"						{count(); yylval.str = strdup(yytext); return(OR);}
 
-"printf"					{count(); return(PRINTF);}
+"printf"					{count(); yylval.str = strdup(yytext); return(PRINTF);}
 
 "while"						{count(); return(WHILE);} 
 "for"						{count(); return(FOR);}
@@ -57,10 +57,10 @@ E         ([Ee][+-]?{D}+)
 
 "float"						{count(); yylval.str = strdup(yytext); return(FLOAT);}
 "double"					{count(); yylval.str = strdup(yytext); return(DOUBLE);}
-"int"						{count(); yylval.sym_type = strdup(yytext); return(INT);} 
-"char"						{count(); return(CHAR);}
-"void"						{count(); return(VOID);}
-"bool"						{count(); return(BOOL);}
+"int"						{count(); yylval.str = strdup(yytext); return(INT);} 
+"char"						{count(); yylval.str = strdup(yytext); return(CHAR);}
+"void"						{count(); yylval.str = strdup(yytext); return(VOID);}
+"bool"						{count(); yylval.str = strdup(yytext); return(BOOL);}
 
 L?\'(\\.|[^\\'\n])\'		{count(); return(CONSTANT);} 	/*char*/
 L?\"(\\.|[^\\"\n])*\"		{count(); return(CONSTANT);} 	/*string*/
@@ -69,7 +69,7 @@ L?\"(\\.|[^\\"\n])*\"		{count(); return(CONSTANT);} 	/*string*/
 {D}+"."{D}*{E}?				{count(); return(CONSTANT);} 	/*float*/
 															/*booleano*/ 
 
-{L}({L}|{D})* 				{count(); return(ID);} /*identififier (e.g., foo, a, myVar, myFunc)*/ 
+{L}({L}|{D})* 				{count(); yylval.str = strdup(yytext); return(ID);} /*identififier (e.g., foo, a, myVar, myFunc)*/ 
 
 [ \t\v\n\f]					{count();}
 .							

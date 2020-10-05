@@ -6,31 +6,22 @@
     extern int yylex();
     extern int yylineno;
     extern Node* syntax_tree;
-    char* floating = "float";
-    char* integer = "int";
-    char* doubling = "double";
+
 %}
 
 %union{
     struct node* no;
-    char* lexeme;
+    char *str; 
 };
 
-%token INCR DECR
-%token GE LE EQ NE LT GT AND OR NOT
-%token PRINTF
-%token WHILE FOR IF ELSE ELIF BREAK CONTINUE RETURN
-%token FLOAT INT CHAR VOID BOOL DOUBLE
-%token CONSTANT
-%token ID
-
+%token <no> WHILE FOR IF ELSE ELIF BREAK CONTINUE RETURN PRINTF
+%token <str> FLOAT INT CHAR VOID BOOL DOUBLE ID CONSTANT INCR DECR GE LE EQ NE LT GT AND OR NOT /*alterar constant mais tarde*/
                 
 %type<no> atree
 %type<no> translation_unit       
 %type<no> external_declaration               
 %type<no> function               
 %type<no> declaration            
-/*%type<no> type          */
 %type<no> assignment             
 %type<no> function_call           
 %type<no> array_usage                            
@@ -47,7 +38,9 @@
 %type<no> jump_statement                         
 %type<no> expr                   
 %type<no> else_elif_stmt         
-%type<no> else_stmt              
+%type<no> else_stmt
+
+%type<str> type relop
 
 %right '='
 %left AND OR
@@ -96,10 +89,9 @@ declaration
 /* Assignment section */
 assignment
     : ID '=' assignment         {Node* eq = create_node(yylineno, eq_node, "=", NULL);
-                                Node* float = create_node(yylineno, float_node, "FLOAT", NULL);
-                                $$ = create_node(yylineno, assignment_node, "ID = assignment", float, eq, $3);}
+                                $$ = create_node(yylineno, assignment_node, "ID = assignment", $1, eq, $3);}
     | ID '=' function_call      { Node* eq = create_node(yylineno, eq_node, "=", NULL);
-                                $$ = create_node(yylineno, eq_node, "ID = function_call", $1, eq, $3);}
+                                $$ = create_node(yylineno, assignment_node, "ID = function_call", $1, eq, $3);}
     | array_usage '=' assignment    { Node* eq = (Node *)malloc(sizeof(Node));
                                     eq->lexeme = "=";
                                     $$ = create_node(yylineno, assignment_node, "array_usage = assignment", $1, eq, $3);}
@@ -111,33 +103,23 @@ assignment
                                 $$ = create_node(yylineno, assignment_node, "CONSTANT, assignment", $1, collon, $3);}
     | ID '+' assignment     {Node* sum = (Node *)malloc(sizeof(Node));
                             sum->lexeme = "+";
-                            Node* id = (Node *)malloc(sizeof(Node));
-                            id->lexeme = "ID";
-                            $$ = create_node(yylineno, assignment_node, "ID + assignment", id, sum, $3);}
+                            $$ = create_node(yylineno, assignment_node, "ID + assignment", $1, sum, $3);}
 
-    | ID '-' assignment     {Node* id = (Node *)malloc(sizeof(Node));
-                            id->lexeme = "ID"; 
-                            Node* sub = (Node *)malloc(sizeof(Node));
+    | ID '-' assignment     {Node* sub = (Node *)malloc(sizeof(Node));
                             sub->lexeme = "-";
-                            $$ = create_node(yylineno, assignment_node, "ID - assignment", id, sub, $3);}
+                            $$ = create_node(yylineno, assignment_node, "ID - assignment", $1, sub, $3);}
 
-    | ID '*' assignment     {Node* id = (Node *)malloc(sizeof(Node));
-                            id->lexeme = "ID";
-                            Node* mult = (Node *)malloc(sizeof(Node));
+    | ID '*' assignment     {Node* mult = (Node *)malloc(sizeof(Node));
                             mult->lexeme = "*";
-                            $$ = create_node(yylineno, assignment_node, "ID * assignment", id, mult, $3);}
+                            $$ = create_node(yylineno, assignment_node, "ID * assignment", $1, mult, $3);}
 
-    | ID '/' assignment     {Node* id = (Node *)malloc(sizeof(Node));
-                            id->lexeme = "ID"; 
-                            Node* div = (Node *)malloc(sizeof(Node));
+    | ID '/' assignment     {Node* div = (Node *)malloc(sizeof(Node));
                             div->lexeme = "/";
-                            $$ = create_node(yylineno, assignment_node, "ID / assignment", id, div, $3);}
+                            $$ = create_node(yylineno, assignment_node, "ID / assignment", $1, div, $3);}
 
-    | ID '%' assignment     {Node* id = (Node *)malloc(sizeof(Node));
-                            id->lexeme = "ID";
-                            Node* mod = (Node *)malloc(sizeof(Node));
+    | ID '%' assignment     {Node* mod = (Node *)malloc(sizeof(Node));
                             mod->lexeme = "%";
-                            $$ = create_node(yylineno, assignment_node, "ID % assignment", id, mod, $3);}
+                            $$ = create_node(yylineno, assignment_node, "ID % assignment", $1, mod, $3);}
 
     | CONSTANT '+' assignment       {Node* sum = (Node *)malloc(sizeof(Node));
                                     sum->lexeme = "+";
@@ -155,11 +137,9 @@ assignment
                                     mod->lexeme = "%";
                                     $$ = create_node(yylineno, assignment_node, "CONSTANT % assignment", $1, mod, $3);}
 
-    | ID INCR   {Node* id = create_node(yylineno, id_node, "ID", NULL); 
-                $$ = create_node(yylineno, assignment_node, "ID INCR", id, $2);}
+    | ID INCR   {$$ = create_node(yylineno, assignment_node, "ID INCR", $1, $2);}
 
-    | ID DECR   {Node* id = create_node(yylineno, id_node, "ID", NULL);
-                $$ = create_node(yylineno, assignment_node, "ID DECR", id, $2);}
+    | ID DECR   {$$ = create_node(yylineno, assignment_node, "ID DECR", $1, $2);}
 
     | '(' assignment ')'    {Node* open_brac = (Node *)malloc(sizeof(Node));
                             open_brac->lexeme = "(";
@@ -194,12 +174,12 @@ array_usage
 
 /* Type section (does not include string yet) */
 type
-    : FLOAT     {$$ = floating;}
+    : FLOAT     {$$ = $1;}
     | INT       {$$ = $1;}
-    | CHAR      {$$ = create_node(yylineno, type_node, "CHAR", NULL);}
-    | VOID      {$$ = create_node(yylineno, type_node, "VOID", NULL);}
-    | BOOL      {$$ = create_node(yylineno, type_node, "BOOL", NULL);}
-    | DOUBLE    {$$ = doubling;}
+    | CHAR      {$$ = $1;}
+    | VOID      {$$ = $1;}
+    | BOOL      {$$ = $1;}
+    | DOUBLE    {$$ = $1;}
     ;
 
 /* Function call section */
@@ -335,14 +315,14 @@ expr
     ;
 
 relop
-    : LE    {$$ = create_node(yylineno, le_node, "LE", NULL);}
+    : LE    {$$ = $1;}
     | GE    {$$ = $1;} 
-    | NE    {$$ = "!=";}
-    | EQ    {$$ = "==";}
-    | GT    {$$ = ">";}
-    | LT    {$$ = "<";}
-    | AND   {$$ = "&&";}
-    | OR    {$$ = "||";}
+    | NE    {$$ = $1;}
+    | EQ    {$$ = $1;}
+    | GT    {$$ = $1;}
+    | LT    {$$ = $1;}
+    | AND   {$$ = $1;}
+    | OR    {$$ = $1;}
     ;
 
 /* Jump statements */
@@ -366,22 +346,22 @@ jump_statement
 
 /* Print Function */
 print_func 
-    : PRINTF '(' expr ')' ';'
+    : PRINTF '(' expr ')' ';'   {Node* open_brac = (Node *)malloc(sizeof(Node));
+    							open_brac->lexeme = "(";
+    							Node* close_brac = (Node *)malloc(sizeof(Node));
+    							close_brac->lexeme = ")";
+    							Node* semicollon = (Node *)malloc(sizeof(Node));
+    							semicollon->lexeme = ")";
+    							$$ = create_node(yylineno, print_func_node, "PRINTF ( expr ) ;", $1, open_brac, $3, close_brac, semicollon);}
     ;
 %%
 
 #include <stdio.h>
 
-extern char yytext[];
+//extern char yytext[];
 extern int column;
 
 void yyerror(char const *s){
     fflush(stdout);
     printf("\n%*s\n%*s\n", column, "^", column, s);
-}
-
-int main(void) {
-    yyparse();
-    printf("Parsing Completed!\n");
-    return 0;
 }

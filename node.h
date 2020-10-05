@@ -23,7 +23,7 @@ typedef int Node_type;
  * Essa serie pode ser completada ou alterada a vontade.
  */
 #define translation_unit_node       500
-#define external_node               501
+#define external_declaration_node   501
 #define function_node               502
 #define declaration_node            503
 #define type_node                   504
