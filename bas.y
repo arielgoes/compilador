@@ -1,9 +1,11 @@
+%error-verbose
 %{
     #include <stdlib.h>
     #include "node.h"
-    extern Node * syntax_tree;
     extern void yyerror(const char *);  /* prints grammar violation message */
     extern int yylex();
+    extern int yylineno;
+    Node* syntax_tree = NULL;
 %}
 %token INCR DECR
 %token GE LE EQ NE LT GT AND OR NOT
@@ -80,13 +82,13 @@
 %%
 
 atree:
-    translation_unit /*{print_node($1);}*/
+    translation_unit {print_node($1); syntax_tree = $$;}
     ; 
 
 /* starting point for yacc */
 translation_unit
-	: external_declaration /*{$$ = $1;}*/
-	| external_declaration translation_unit {$$=create_node(yylineno, translation_unit_node, NULL, $1, $2);}
+	: external_declaration {$$ = $1;}
+	| external_declaration translation_unit {$$=create_node(yylineno, translation_unit_node, NULL, $1, $2, NULL);}
 	;
 
 external_declaration
@@ -250,12 +252,12 @@ extern char yytext[];
 extern int column;
 
 void yyerror(char const *s){
-	fflush(stdout);
-	printf("\n%*s\n%*s\n", column, "^", column, s);
+    fflush(stdout);
+    printf("\n%*s\n%*s\n", column, "^", column, s);
 }
 
 int main(void) {
-	yyparse();
+    yyparse();
     printf("Parsing Completed!\n");
-	return 0;
+    return 0;
 }

@@ -78,14 +78,11 @@ typedef struct node {
    char* lexeme;                    /**< o lexema retornado pelo analizador lexical. */
    Node_type type;                  /**< Um dos valores definidos acima pelos # defines. */
    void* attribute;                 /**< Qualquer coisa por enquanto. */
-
    struct node** children;
    unsigned int n_child;
-
 } Node;
 
-extern Node * syntax_tree;
-
+extern Node* syntax_tree;
 
 
 /**

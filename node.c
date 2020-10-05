@@ -1,12 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
+#include <assert.h>
 #include "node.h"
 
 
-extern Node* syntax_tree;
 
-Node* create_node(int nl, Node_type t, char& lexeme, /*Node children*/ ...){
+Node* create_node(int nl, Node_type t, char* lexeme, /*Node children*/ ...){
     Node* new_node = (Node *)malloc(sizeof(Node));
 
     new_node->line_num = nl;
@@ -57,10 +57,10 @@ int is_leaf(Node* n){
 Node* child(Node* n, int i){
     if(n == NULL){
         printf("ERROR: child is NULL!\n");
-        return -1;
+        return NULL;
     }else if(0 <= i && (unsigned int)i < n->n_child){
         printf("ERROR: child is NULL!\n");
-        return -2;
+        return NULL;
     }
 
     return n->children[i];
@@ -115,7 +115,7 @@ int height(Node* n){
 
 void uncompile(FILE* outfile, Node *n){ //fazer...
 	if(n != NULL){
-		printf("n->lexeme: \n" + n->lexeme);
+		printf("n->lexeme: %s\n", n->lexeme);
         return;
         int numChildren = sizeof(n->children)/sizeof(n->children[0]);
         for(int i = 0; i < numChildren; i++){
@@ -126,22 +126,8 @@ void uncompile(FILE* outfile, Node *n){ //fazer...
 }
 
 void print_node(Node* node){
-    printf("%s<Tree lineNo=\"%d\" nodeType=\"%s\" string=\"%s\" value=\"%s\" dataType=\"%s\">\n", 
-        indent,
-        node->lineNo,
-        node->nodeType,
-        node->string,
-        node->value, 
-        node->dataType);
-    int i;
-    if (node->Nchildren > 0){
-        printf("%s<Child>\n", indent);
-        incIndent();
-        for (i=0;i<node->Nchildren;i++){
-            printNode(node->child[i]);
-        }
-        decIndent();
-        printf("%s</Child>\n", indent);
-    }
-    printf("%s</Tree>\n", indent);
+            printf("line_num=\"%d\" type=\"%d\" lexeme=\"%s\"",
+                node->line_num,
+                node->type,
+                node->lexeme);
 }

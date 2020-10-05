@@ -1,5 +1,5 @@
 %{
-	#include <stdio.h>
+	
 	#include <stdlib.h>
 	#include "y.tab.h" /*table of symbols (linkage between 'lex' and 'yacc')*/
 	extern void yyerror(const char *);  /* prints grammar violation message */
