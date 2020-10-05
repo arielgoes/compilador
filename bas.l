@@ -5,6 +5,7 @@
 	extern void yyerror(const char *);  /* prints grammar violation message */
 	void comment(void);
 	void count(void);
+	extern int sym_type(const char *);  /* returns type from symbol table */
 %}
 
 D      	  [0-9]
@@ -54,9 +55,9 @@ E         ([Ee][+-]?{D}+)
 "continue"					{count(); return(CONTINUE);}
 "return"					{count(); return(RETURN);}
 
-"float"						{count(); return(FLOAT);}
-"double"					{count(); return(DOUBLE);}
-"int"						{count(); return(INT);} 
+"float"						{count(); yylval.str = strdup(yytext); return(FLOAT);}
+"double"					{count(); yylval.str = strdup(yytext); return(DOUBLE);}
+"int"						{count(); yylval.sym_type = strdup(yytext); return(INT);} 
 "char"						{count(); return(CHAR);}
 "void"						{count(); return(VOID);}
 "bool"						{count(); return(BOOL);}

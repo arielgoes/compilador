@@ -1,6 +1,6 @@
 out: lex.yy.c y.tab.c
 	@echo "rule 'out'"
-	cc lex.yy.c y.tab.c node.c -ll
+	gcc -w lex.yy.c y.tab.c node.c
 
 lex.yy.c: y.tab.c bas.l
 	@echo "rule 'lex.yy.c'..."
