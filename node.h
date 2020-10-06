@@ -22,6 +22,8 @@ typedef int Node_type;
 /* Serie de constantes que servirao para definir tipos de nos (na arvore). 
  * Essa serie pode ser completada ou alterada a vontade.
  */
+
+#define atree_node                  499
 #define translation_unit_node       500
 #define external_declaration_node   501
 #define function_node               502
@@ -71,6 +73,19 @@ typedef int Node_type;
 #define break_node                  546
 #define return_node                 547
 #define printf_node                 548
+#define open_round_brac_node        549
+#define close_round_brac_node       550
+#define open_sqr_brac_node          551
+#define close_sqr_brac_node         552
+#define open_curly_brac_node        553
+#define close_curly_brac_node       554
+#define semicollon_node             555
+#define collon_node                 556
+#define sum_node                    557
+#define sub_node                    558
+#define mult_node                   559
+#define div_node                    560
+#define mod_node                    561
 
 /** Estrutura de dados parcial para o no da arvore. */
 typedef struct node {

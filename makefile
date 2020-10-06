@@ -8,4 +8,4 @@ lex.yy.c: y.tab.c bas.l
 
 y.tab.c: bas.y
 	@echo "rule 'y.tab.c'..."
-	yacc -d bas.y
+	yacc -td bas.y

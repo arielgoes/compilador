@@ -13,16 +13,18 @@ Node* create_node(int nl, Node_type t, char* lexeme, /*Node children*/ ...){
     new_node->type = t;
     new_node->lexeme = lexeme;
 
-    va_list ap; //list of arguments (from library <stdarg.h>)
+    va_list ap; //list of arguments (from <stdarg.h>)
     va_start(ap, lexeme);
     int n_args = 0;
     Node* arg = (Node *)malloc(sizeof(Node));
-    
-    for(; arg != NULL; va_arg(ap, Node*)){
-        printf("Received: '%s'\n", arg->lexeme);
+
+    for(arg = va_arg(ap, Node*); arg != NULL; arg = va_arg(ap, Node*)){
+        //printf("Received: '%s'\n", arg->lexeme);
         n_args++;
     }
     va_end(ap);
+
+    new_node->children = (Node**)malloc(sizeof(Node*)*n_args);
 
     va_start(ap, lexeme);
     for(int i = 0; i < n_args; i++){
@@ -115,10 +117,8 @@ int height(Node* n){
 
 void uncompile(FILE* outfile, Node *n){ //fazer...
 	if(n != NULL){
-		printf("n->lexeme: %s\n", n->lexeme);
-        return;
-        int numChildren = sizeof(n->children)/sizeof(n->children[0]);
-        for(int i = 0; i < numChildren; i++){
+		printf("n->lexeme: %s\n", n->lexeme); 
+        for(int i = 0; i < n->n_child; i++){
             uncompile(outfile, n->children[i]);
         }
 	}

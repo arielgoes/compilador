@@ -3,10 +3,8 @@
     #include <stdlib.h>
     #include "node.h"
     extern void yyerror(const char *);  /* prints grammar violation message */
-    extern int yylex();
     extern int yylineno;
     extern Node* syntax_tree;
-
 %}
 
 %union{
@@ -53,306 +51,253 @@
 %%
 
 atree
-    :translation_unit {$$ = $1; syntax_tree = $$;}
+    :translation_unit {$$ = create_node(yylineno, atree_node, "atree", $1, NULL); syntax_tree = $$;}
     ; 
 
 /* starting point for yacc */
 translation_unit
-    : external_declaration {$$ = $1;}
-    | external_declaration translation_unit {$$=create_node(yylineno, translation_unit_node, "external_declaration translation_unit", $1, $2);}
+    : external_declaration {$$ = create_node(yylineno, translation_unit_node, "external_declaration", $1, NULL);}
+    | external_declaration translation_unit {$$=create_node(yylineno, translation_unit_node, "external_declaration translation_unit", $1, $2, NULL);}
     ;
 
 external_declaration
-    : function { $$ = create_node(yylineno, external_declaration_node, "function", $1); }
-    | declaration { $$ = create_node(yylineno, external_declaration_node, "declaration", $1); }
+    : function { $$ = create_node(yylineno, external_declaration_node, "function", $1, NULL); }
+    | declaration { $$ = create_node(yylineno, external_declaration_node, "declaration", $1, NULL); }
     ;
 
 /* Declaration section */
 declaration
-    : type assignment ';'   {Node* semicollon = (Node*)malloc(sizeof(Node));
-                            semicollon->lexeme = ";";
-                            $$ = create_node(yylineno, declaration_node, "type assignment ;", $1, $2, semicollon);}
-    | assignment ';'        {Node* semicollon = (Node*)malloc(sizeof(Node));
-                            semicollon->lexeme = ";";
-                            $$ = create_node(yylineno, declaration_node, "assignment ;", $1, semicollon);}
-    | function_call ';'     {Node* semicollon = (Node*)malloc(sizeof(Node));
-                            semicollon->lexeme = ";";
-                            $$ = create_node(yylineno, declaration_node, "function_call ;", $1, semicollon);} 
-    | array_usage ';'       {Node* semicollon = (Node*)malloc(sizeof(Node));
-                            semicollon->lexeme = ";";
-                            $$ = create_node(yylineno, declaration_node, "array_usage ;", $1, semicollon);}
-    | type array_usage ';'  {Node* semicollon = (Node*)malloc(sizeof(Node));
-                            semicollon->lexeme = ";";
-                            $$ = create_node(yylineno, declaration_node, "assignment ;", $1, $2, semicollon);}
+    : type assignment ';'   {Node* semicollon = create_node(yylineno, semicollon_node, ";", NULL);
+                            $$ = create_node(yylineno, declaration_node, "type assignment ;", $1, $2, semicollon, NULL);}
+    | assignment ';'        {Node* semicollon = create_node(yylineno, semicollon_node, ";", NULL);
+                            $$ = create_node(yylineno, declaration_node, "assignment ;", $1, semicollon, NULL);}
+    | function_call ';'     {Node* semicollon = create_node(yylineno, semicollon_node, ";", NULL);
+                            $$ = create_node(yylineno, declaration_node, "function_call ;", $1, semicollon, NULL);} 
+    | array_usage ';'       {Node* semicollon = create_node(yylineno, semicollon_node, ";", NULL);
+                            $$ = create_node(yylineno, declaration_node, "array_usage ;", $1, semicollon, NULL);}
+    | type array_usage ';'  {Node* semicollon = create_node(yylineno, semicollon_node, ";", NULL);
+                            $$ = create_node(yylineno, declaration_node, "assignment ;", $1, $2, semicollon, NULL);}
     ;
 
 /* Assignment section */
 assignment
     : ID '=' assignment         {Node* eq = create_node(yylineno, eq_node, "=", NULL);
-                                $$ = create_node(yylineno, assignment_node, "ID = assignment", $1, eq, $3);}
-    | ID '=' function_call      { Node* eq = create_node(yylineno, eq_node, "=", NULL);
-                                $$ = create_node(yylineno, assignment_node, "ID = function_call", $1, eq, $3);}
-    | array_usage '=' assignment    { Node* eq = (Node *)malloc(sizeof(Node));
-                                    eq->lexeme = "=";
-                                    $$ = create_node(yylineno, assignment_node, "array_usage = assignment", $1, eq, $3);}
-    | ID ',' assignment         {Node* collon = (Node *)malloc(sizeof(Node));
-                                collon->lexeme = ",";
-                                $$ = create_node(yylineno, assignment_node, "ID , assignment", $1, collon, $3);}
-    | CONSTANT ',' assignment   {Node* collon = (Node *)malloc(sizeof(Node));
-                                collon->lexeme = ",";
-                                $$ = create_node(yylineno, assignment_node, "CONSTANT, assignment", $1, collon, $3);}
-    | ID '+' assignment     {Node* sum = (Node *)malloc(sizeof(Node));
-                            sum->lexeme = "+";
-                            $$ = create_node(yylineno, assignment_node, "ID + assignment", $1, sum, $3);}
+                                Node* id = create_node(yylineno, id_node, "ID", NULL);
+                                $$ = create_node(yylineno, assignment_node, "ID = assignment", id, eq, $3, NULL);}
+    | ID '=' function_call      {Node* eq = create_node(yylineno, eq_node, "=", NULL, NULL);
+                                $$ = create_node(yylineno, assignment_node, "ID = function_call", $1, eq, $3, NULL);}
+    | array_usage '=' assignment    {Node* eq = create_node(yylineno, eq_node, "=", NULL);
+                                    $$ = create_node(yylineno, assignment_node, "array_usage = assignment", $1, eq, $3, NULL);}
+    | ID ',' assignment         {Node* collon = create_node(yylineno, collon_node, ",", NULL);
+                                $$ = create_node(yylineno, assignment_node, "ID , assignment", $1, collon, $3, NULL);}
+    | CONSTANT ',' assignment   {Node* collon = create_node(yylineno, collon_node, ",", NULL);
+                                $$ = create_node(yylineno, assignment_node, "CONSTANT, assignment", $1, collon, $3, NULL);}
+    | ID '+' assignment     {Node* sum = create_node(yylineno, sum_node, "+", NULL);
+                            $$ = create_node(yylineno, assignment_node, "ID + assignment", $1, sum, $3, NULL);}
 
-    | ID '-' assignment     {Node* sub = (Node *)malloc(sizeof(Node));
-                            sub->lexeme = "-";
-                            $$ = create_node(yylineno, assignment_node, "ID - assignment", $1, sub, $3);}
+    | ID '-' assignment     {Node* sub = create_node(yylineno, sub_node, "-", NULL);
+                            $$ = create_node(yylineno, assignment_node, "ID - assignment", $1, sub, $3, NULL);}
 
-    | ID '*' assignment     {Node* mult = (Node *)malloc(sizeof(Node));
-                            mult->lexeme = "*";
-                            $$ = create_node(yylineno, assignment_node, "ID * assignment", $1, mult, $3);}
+    | ID '*' assignment     {Node* mult = create_node(yylineno, mult_node, "*", NULL);
+                            $$ = create_node(yylineno, assignment_node, "ID * assignment", $1, mult, $3, NULL);}
 
-    | ID '/' assignment     {Node* div = (Node *)malloc(sizeof(Node));
-                            div->lexeme = "/";
-                            $$ = create_node(yylineno, assignment_node, "ID / assignment", $1, div, $3);}
+    | ID '/' assignment     {Node* mult = create_node(yylineno, div_node, "/", NULL);
+                            $$ = create_node(yylineno, assignment_node, "ID / assignment", $1, div, $3, NULL);}
 
-    | ID '%' assignment     {Node* mod = (Node *)malloc(sizeof(Node));
-                            mod->lexeme = "%";
-                            $$ = create_node(yylineno, assignment_node, "ID % assignment", $1, mod, $3);}
+    | ID '%' assignment     {Node* mod = create_node(yylineno, mod_node, "%", NULL);
+                            $$ = create_node(yylineno, assignment_node, "ID % assignment", $1, mod, $3, NULL);}
 
-    | CONSTANT '+' assignment       {Node* sum = (Node *)malloc(sizeof(Node));
-                                    sum->lexeme = "+";
-                                    $$ = create_node(yylineno, assignment_node, "CONSTANT + assignment", $1, sum, $3);}
-    | CONSTANT '-' assignment       {Node* sub = (Node *)malloc(sizeof(Node));
-                                    sub->lexeme = "-";
-                                    $$ = create_node(yylineno, assignment_node, "CONSTANT - assignment", $1, sub, $3);}
-    | CONSTANT '*' assignment       {Node* mult = (Node *)malloc(sizeof(Node));
-                                    mult->lexeme = "*";
-                                    $$ = create_node(yylineno, assignment_node, "CONSTANT * assignment", $1, mult, $3);}
-    | CONSTANT '/' assignment       {Node* div = (Node *)malloc(sizeof(Node));
-                                    div->lexeme = "/";
-                                    $$ = create_node(yylineno, assignment_node, "CONSTANT / assignment", $1, div, $3);} 
-    | CONSTANT '%' assignment       {Node* mod = (Node *)malloc(sizeof(Node));
-                                    mod->lexeme = "%";
-                                    $$ = create_node(yylineno, assignment_node, "CONSTANT % assignment", $1, mod, $3);}
+    | CONSTANT '+' assignment       {Node* sum = create_node(yylineno, sum_node, "+", NULL);
+                                    $$ = create_node(yylineno, assignment_node, "CONSTANT + assignment", $1, sum, $3, NULL);}
+    | CONSTANT '-' assignment       {Node* sub = create_node(yylineno, sub_node, "-", NULL);
+                                    $$ = create_node(yylineno, assignment_node, "CONSTANT - assignment", $1, sub, $3), NULL;}
+    | CONSTANT '*' assignment       {Node* mult = create_node(yylineno, mult_node, "*", NULL);
+                                    $$ = create_node(yylineno, assignment_node, "CONSTANT * assignment", $1, mult, $3, NULL);}
+    | CONSTANT '/' assignment       {Node* div = create_node(yylineno, div_node, "/", NULL);
+                                    $$ = create_node(yylineno, assignment_node, "CONSTANT / assignment", $1, div, $3, NULL);} 
+    | CONSTANT '%' assignment       {Node* mod = create_node(yylineno, mod_node, "%", NULL);
+                                    $$ = create_node(yylineno, assignment_node, "CONSTANT % assignment", $1, mod, $3, NULL);}
 
-    | ID INCR   {$$ = create_node(yylineno, assignment_node, "ID INCR", $1, $2);}
+    | ID INCR   {$$ = create_node(yylineno, assignment_node, "ID INCR", $1, $2, NULL);}
 
-    | ID DECR   {$$ = create_node(yylineno, assignment_node, "ID DECR", $1, $2);}
+    | ID DECR   {$$ = create_node(yylineno, assignment_node, "ID DECR", $1, $2, NULL);}
 
-    | '(' assignment ')'    {Node* open_brac = (Node *)malloc(sizeof(Node));
-                            open_brac->lexeme = "(";
-                            Node* close_brac = (Node *)malloc(sizeof(Node));
-                            close_brac->lexeme = ")";
-                            $$ = create_node(yylineno, assignment_node, "( assignment )", open_brac, $2, close_brac);}
-    | '-' '(' assignment ')'    {Node* sub = (Node *)malloc(sizeof(Node));
-                                sub->lexeme = "-";
-                                Node* open_brac = (Node*)malloc(sizeof(Node));
-                                open_brac->lexeme = "(";
-                                Node* close_brac = (Node *)malloc(sizeof(Node));
-                                close_brac->lexeme = "(";
-                                $$ = create_node(yylineno, assignment_node, "( assignment )", sub, open_brac, $3, close_brac);}
-    | '-' CONSTANT {Node* sub = (Node*)malloc(sizeof(Node));
-                    sub->lexeme = "-";
-                    $$ = create_node(yylineno, assignment_node, "- CONSTANT", sub, $2);}
+    | '(' assignment ')'    {Node* open_round_brac = create_node(yylineno, open_round_brac_node, "(", NULL);
+                            Node* close_round_brac = create_node(yylineno, close_round_brac_node, ")", NULL);
+                            $$ = create_node(yylineno, assignment_node, "( assignment )", open_round_brac, $2, close_round_brac, NULL);}
+    | '-' '(' assignment ')'    {Node* sub = create_node(yylineno, sub_node, "-", NULL);
+                                Node* open_round_brac = create_node(yylineno, open_round_brac_node, "(", NULL);
+                                Node* close_round_brac = create_node(yylineno, close_round_brac_node, ")", NULL);
+                                $$ = create_node(yylineno, assignment_node, "( assignment )", sub, open_round_brac, $3, close_round_brac, NULL);}
+    | '-' CONSTANT  {Node* sub = create_node(yylineno, sub_node, "-", NULL);
+                    $$ = create_node(yylineno, assignment_node, "- CONSTANT", sub, $2, NULL);}
     | '-' ID        {Node* sub = (Node*)malloc(sizeof(Node));
-                    sub->lexeme = "-";
-                    $$ = create_node(yylineno, assignment_node, "- ID", sub, $2);} 
-    | CONSTANT  {$$ = create_node(yylineno, assignment_node, "CONSTANT", $1);}
-    | ID        {$$ = create_node(yylineno, assignment_node, "ID", $1);}
+                    $$ = create_node(yylineno, assignment_node, "- ID", sub, $2, NULL);} 
+    | CONSTANT  {$$ = create_node(yylineno, assignment_node, "CONSTANT", $1, NULL);}
+    | ID        {$$ = create_node(yylineno, assignment_node, "ID", $1, NULL);}
     ;
 
 /* Array usage */
 array_usage
-    : ID '[' assignment ']' {Node* open_sqr_brac = (Node *)malloc(sizeof(Node));
-                            open_sqr_brac->lexeme = "[";
-                            Node* close_sqr_brac = (Node *)malloc(sizeof(Node));
-                            close_sqr_brac->lexeme = "]";
-                            $$ = create_node(yylineno, array_usage_node, "ID [ assignment ]", $1, open_sqr_brac, $3, close_sqr_brac);}
+    : ID '[' assignment ']' {Node* open_sqr_brac = create_node(yylineno, open_sqr_brac_node, "[", NULL);
+                            Node* close_sqr_brac = create_node(yylineno, close_sqr_brac_node, "]", NULL);
+                            $$ = create_node(yylineno, array_usage_node, "ID [ assignment ]", $1, open_sqr_brac, $3, close_sqr_brac, NULL);}
     ;
 
 /* Type section (does not include string yet) */
 type
-    : FLOAT     {$$ = $1;}
-    | INT       {$$ = $1;}
-    | CHAR      {$$ = $1;}
-    | VOID      {$$ = $1;}
-    | BOOL      {$$ = $1;}
-    | DOUBLE    {$$ = $1;}
+    : FLOAT     {$$ = create_node(yylineno, type_node, "FLOAT", $1, NULL);}
+    | INT       {$$ = create_node(yylineno, type_node, "INT", $1, NULL);}
+    | CHAR      {$$ = create_node(yylineno, type_node, "CHAR", $1, NULL);}
+    | VOID      {$$ = create_node(yylineno, type_node, "VOID", $1, NULL);}
+    | BOOL      {$$ = create_node(yylineno, type_node, "BOOL", $1, NULL);}
+    | DOUBLE    {$$ = create_node(yylineno, type_node, "DOUBLE", $1, NULL);}
     ;
 
 /* Function call section */
 function_call
-    : ID '(' ')'                {Node* open_brac = (Node *)malloc(sizeof(Node));
-                                open_brac->lexeme = "(";
-                                Node* close_brac = (Node *)malloc(sizeof(Node));
-                                close_brac->lexeme = ")";
-                                $$ = create_node(yylineno, function_call_node, "ID ( )", $1, open_brac, close_brac);}
+    : ID '(' ')'                {Node* open_round_brac = create_node(yylineno, open_round_brac_node, "(", NULL);
+                                Node* close_round_brac = create_node(yylineno, close_round_brac_node, ")", NULL);
+                                $$ = create_node(yylineno, function_call_node, "ID ( )", $1, open_round_brac, close_round_brac, NULL);}
 
-    | ID '(' assignment ')'     {Node* open_brac = (Node *)malloc(sizeof(Node));
-                                open_brac->lexeme = "(";
-                                Node* close_brac = (Node *)malloc(sizeof(Node));
-                                close_brac->lexeme = ")";
-                                $$ = create_node(yylineno, function_call_node, "ID ( assignment )", $1, open_brac, $3, close_brac);}
+    | ID '(' assignment ')'     {Node* open_round_brac = create_node(yylineno, open_round_brac_node, "(", NULL);
+                                Node* close_round_brac = create_node(yylineno, close_round_brac_node, ")", NULL);
+                                $$ = create_node(yylineno, function_call_node, "ID ( assignment )", $1, open_round_brac, $3, close_round_brac, NULL);}
     ;
 
 /* Function section */
 function
-    : type ID '(' arg_list_opt ')' compound_stmt    {Node* open_brac = (Node *)malloc(sizeof(Node));
-                                                    open_brac->lexeme = "(";
-                                                    Node* close_brac = (Node *)malloc(sizeof(Node));
-                                                    close_brac->lexeme = ")";
+    : type ID '(' arg_list_opt ')' compound_stmt    {Node* open_round_brac = create_node(yylineno, open_round_brac_node, "(", NULL);
+                                                    Node* close_round_brac = create_node(yylineno, close_round_brac_node, ")", NULL);
+                                                    Node* id = create_node(yylineno, id_node, "ID", NULL);
                                                     $$ = create_node(yylineno, function_node, "type ID ( arg_list_opt ) compound_stmt", 
-                                                    $1, $2, open_brac, $4, close_brac, $6);}  
+                                                    $1, id, open_round_brac, $4, close_round_brac, $6, NULL);}  
     ;
 
 arg_list_opt
-    : arg_list  {$$ = create_node(yylineno, arg_list_opt_node, "arg_list", $1);}
+    : arg_list  {$$ = create_node(yylineno, arg_list_opt_node, "arg_list", $1, NULL);}
     |           {$$ = create_node(yylineno, arg_list_opt_node, "arg_list_opt --> EMPTY", NULL);}
     ;
 
 arg_list
-    : arg_list ',' arg  {Node* collon = (Node *)malloc(sizeof(Node));
-                        collon->lexeme = ",";
-                        $$ = create_node(yylineno, arg_list_node, "arg_list , arg", $1, collon, $3);}
+    : arg_list ',' arg  {Node* collon = create_node(yylineno, collon_node, ",", NULL);
+                        $$ = create_node(yylineno, arg_list_node, "arg_list , arg", $1, collon, $3, NULL);}
 
-    | arg               {$$ = create_node(yylineno, arg_list_node, "arg", $1);}
+    | arg               {$$ = create_node(yylineno, arg_list_node, "arg", $1, NULL);}
     ;
     
 arg
-    : type ID   {$$ = create_node(yylineno, arg_node, "type ID", $1, $2);}
+    : type ID   {Node* id = create_node(yylineno, id_node, "ID", NULL);
+                $$ = create_node(yylineno, arg_node, "type ID", $1, id, NULL);}
     ;
 
 compound_stmt
-    : '{' stmt_list '}' {Node* open_curly_brac = (Node *)malloc(sizeof(Node));
-                        open_curly_brac->lexeme = "{";
-                        Node* close_curly_brac = (Node *)malloc(sizeof(Node));
-                        close_curly_brac->lexeme = "}";
-                        $$ = create_node(yylineno, compound_stmt_node, "{ stmt_list }", open_curly_brac, $2, close_curly_brac);}
+    : '{' stmt_list '}' {Node* open_curly_brac = create_node(yylineno, open_curly_brac_node, "{", NULL);
+                        Node* close_curly_brac = create_node(yylineno, close_curly_brac_node, "}", NULL);
+                        $$ = create_node(yylineno, compound_stmt_node, "{ stmt_list }", open_curly_brac, $2, close_curly_brac, NULL);}
     ;
 
 stmt_list
-    : stmt_list stmt    {$$ = create_node(yylineno, stmt_list_node, "stmt_list stmt", $1, $2);}
+    : stmt_list stmt    {$$ = create_node(yylineno, stmt_list_node, "stmt_list stmt", $1, $2, NULL);}
     |                   {$$ = create_node(yylineno, stmt_list_node, "stmt_list --> EMPTY", NULL);}
     ;
     
 stmt
-    : while_stmt        {$$ = create_node(yylineno, stmt_node, "while_stmt", $1);}
-    | declaration       {$$ = create_node(yylineno, stmt_node, "declaration", $1);}
-    | for_stmt          {$$ = create_node(yylineno, stmt_node, "for_stmt", $1);} 
-    | if_stmt           {$$ = create_node(yylineno, stmt_node, "if_stmt", $1);}  
-    | print_func        {$$ = create_node(yylineno, stmt_node, "print_func", $1);} 
-    | jump_statement    {$$ = create_node(yylineno, stmt_node, "jump_statement", $1);} 
-    | ';'               {Node* semicollon = (Node *)malloc(sizeof(Node));
-                        semicollon->lexeme = ";";
-                        $$ = create_node(yylineno, stmt_node, ";", semicollon);}
+    : while_stmt        {$$ = create_node(yylineno, stmt_node, "while_stmt", $1, NULL);}
+    | declaration       {$$ = create_node(yylineno, stmt_node, "declaration", $1, NULL);}
+    | for_stmt          {$$ = create_node(yylineno, stmt_node, "for_stmt", $1, NULL);} 
+    | if_stmt           {$$ = create_node(yylineno, stmt_node, "if_stmt", $1, NULL);}  
+    | print_func        {$$ = create_node(yylineno, stmt_node, "print_func", $1, NULL);} 
+    | jump_statement    {$$ = create_node(yylineno, stmt_node, "jump_statement", $1, NULL);}
+    | ';'               {Node* semicollon = create_node(yylineno, semicollon_node, ";", NULL);
+                        $$ = create_node(yylineno, stmt_node, ";", semicollon, NULL);}
     ;
 
 
 /* Loop section */
 while_stmt
-    : WHILE '(' expr ')' compound_stmt  {Node* open_brac = (Node *)malloc(sizeof(Node));
-                                        open_brac->lexeme = "(";
-                                        Node* close_brac = (Node *)malloc(sizeof(Node));
-                                        close_brac->lexeme = ")";
+    : WHILE '(' expr ')' compound_stmt  {Node* open_round_brac = create_node(yylineno, open_round_brac_node, "(", NULL);
+                                        Node* close_round_brac = create_node(yylineno, close_round_brac_node, "(", NULL);
                                         $$ = create_node(yylineno, while_stmt_node, "WHILE ( expr ) compound_stmt",
-                                        $1, open_brac, $3, close_brac, $5);}
+                                        $1, open_round_brac, $3, close_round_brac, $5, NULL);}
     ;
 
 /* For section */
 for_stmt
-    : FOR '(' expr ';' expr ';' expr ')' compound_stmt  {Node* semicollon1 = (Node *)malloc(sizeof(Node));
-                                                        semicollon1->lexeme = ";";
-                                                        Node* semicollon2 = (Node *)malloc(sizeof(Node));
-                                                        semicollon2->lexeme = ";";
-                                                        Node* open_brac = (Node *)malloc(sizeof(Node));
-                                                        open_brac->lexeme = "(";
-                                                        Node* close_brac = (Node *)malloc(sizeof(Node));
-                                                        close_brac->lexeme = ")";
+    : FOR '(' expr ';' expr ';' expr ')' compound_stmt  {Node* semicollon1 = create_node(yylineno, semicollon_node, ";", NULL);
+                                                        Node* semicollon2 = create_node(yylineno, semicollon_node, ";", NULL);
+                                                        Node* open_round_brac = create_node(yylineno, open_round_brac_node, "(", NULL);
+                                                        Node* close_round_brac = create_node(yylineno, close_round_brac_node, ")", NULL);
                                                         $$ = create_node(yylineno, for_stmt_node, "FOR ( expr ; expr ; expr ) compound_stmt",
-                                                        $1, open_brac, $3, semicollon1, $5, semicollon2, $7, close_brac, $9);}
+                                                        $1, open_round_brac, $3, semicollon1, $5, semicollon2, $7, close_round_brac, $9, NULL);}
 
-    | FOR '(' expr ')' compound_stmt    {Node* open_brac = (Node *)malloc(sizeof(Node));
-                                        open_brac->lexeme = "(";
-                                        Node* close_brac = (Node *)malloc(sizeof(Node));
-                                        close_brac->lexeme = ")";
+    | FOR '(' expr ')' compound_stmt    {Node* open_round_brac = create_node(yylineno, open_round_brac_node, "(", NULL);
+                                        Node* close_round_brac = create_node(yylineno, close_round_brac_node, ")", NULL);
                                         $$ = create_node(yylineno, for_stmt_node, "FOR ( expr ) compound_stmt", 
-                                        $1, open_brac, $3, close_brac, $5);}
+                                        $1, open_round_brac, $3, close_round_brac, $5, NULL);}
     ;
 
 /* IfStmt Block */
 if_stmt 
-    : IF '(' expr ')' compound_stmt else_elif_stmt  {Node* open_brac = (Node *)malloc(sizeof(Node));
-                                                    open_brac->lexeme = "(";
-                                                    Node* close_brac = (Node *)malloc(sizeof(Node));
-                                                    close_brac->lexeme = ")";
+    : IF '(' expr ')' compound_stmt else_elif_stmt  {Node* open_round_brac = create_node(yylineno, open_round_brac_node, "(", NULL);
+                                                    Node* close_round_brac = create_node(yylineno, close_round_brac_node, ")", NULL);
                                                     $$ = create_node(yylineno, if_stmt_node, "IF ( expr ) compound_stmt else_elif_stmt", 
-                                                    $1, open_brac, $3, close_brac, $5, $6);} 
+                                                    $1, open_round_brac, $3, close_round_brac, $5, $6, NULL);} 
     ;
 
 else_elif_stmt
-    : ELIF '(' expr ')' compound_stmt else_elif_stmt    {Node* open_brac = (Node *)malloc(sizeof(Node));
-                                                        open_brac->lexeme = "(";
-                                                        Node* close_brac = (Node *)malloc(sizeof(Node));
-                                                        close_brac->lexeme = ")";
+    : ELIF '(' expr ')' compound_stmt else_elif_stmt    {Node* open_round_brac = create_node(yylineno, open_round_brac_node, "(", NULL);
+                                                        Node* close_round_brac = create_node(yylineno, close_round_brac_node, ")", NULL);
                                                         $$ = create_node(yylineno, else_elif_stmt_node, "ELIF '(' expr ')' compound_stmt else_elif_stmt",
-                                                        $1, open_brac, $3, close_brac, $5, $6);}
+                                                        $1, open_round_brac, $3, close_round_brac, $5, $6, NULL);}
 
-    | else_stmt {$$ = create_node(yylineno, else_elif_stmt_node, "else_stmt", $1);}                          
+    | else_stmt {$$ = create_node(yylineno, else_elif_stmt_node, "else_stmt", $1, NULL);}                          
     |           {$$ = create_node(yylineno, else_elif_stmt_node, "else_stmt --> EMPTY", NULL);}
     ;
 
 else_stmt
-    : ELSE compound_stmt    {$$ = create_node(yylineno, else_stmt_node, "ELSE compound_stmt", $1, $2);}
+    : ELSE compound_stmt    {$$ = create_node(yylineno, else_stmt_node, "ELSE compound_stmt", $1, $2, NULL);}
     ;
 
 /*expression Block*/
 expr   
-    : expr relop expr  {$$ = create_node(yylineno, expr_node, "expr relop expr", $1, $2, $3);}
-    | assignment    {$$ = create_node(yylineno, expr_node, "assignment", $1);}
-    | array_usage   {$$ = create_node(yylineno, expr_node, "array_usage", $1);}
+    : expr relop expr  {$$ = create_node(yylineno, expr_node, "expr relop expr", $1, $2, $3, NULL);}
+    | assignment    {$$ = create_node(yylineno, expr_node, "assignment", $1, NULL);}
+    | array_usage   {$$ = create_node(yylineno, expr_node, "array_usage", $1, NULL);}
     ;
 
 relop
-    : LE    {$$ = $1;}
-    | GE    {$$ = $1;} 
-    | NE    {$$ = $1;}
-    | EQ    {$$ = $1;}
-    | GT    {$$ = $1;}
-    | LT    {$$ = $1;}
-    | AND   {$$ = $1;}
-    | OR    {$$ = $1;}
+    : LE    {$$ = create_node(yylineno, le_node, "LE", NULL);}
+    | GE    {$$ = create_node(yylineno, ge_node, "GE", NULL);} 
+    | NE    {$$ = create_node(yylineno, ne_node, "NE", NULL);}
+    | EQ    {$$ = create_node(yylineno, eq_node, "EQ", NULL);}
+    | GT    {$$ = create_node(yylineno, gt_node, "GT", NULL);}
+    | LT    {$$ = create_node(yylineno, lt_node, "LT", NULL);}
+    | AND   {$$ = create_node(yylineno, and_node, "AND", NULL);}
+    | OR    {$$ = create_node(yylineno, or_node, "OR", NULL);}
     ;
 
 /* Jump statements */
 jump_statement
-    : CONTINUE ';'  {Node* semicollon = (Node *)malloc(sizeof(Node));
-                    semicollon->lexeme = ";";
-                    $$ = create_node(yylineno, jump_statement_node, "CONTINUE ;", $1, semicollon);}
+    : CONTINUE ';'  {Node* semicollon = create_node(yylineno, semicollon_node, ";", NULL);
+                    $$ = create_node(yylineno, jump_statement_node, "CONTINUE ;", $1, semicollon, NULL);}
 
-    | BREAK ';'     {Node* semicollon = (Node *)malloc(sizeof(Node));
-                    semicollon->lexeme = ";";
-                    $$ = create_node(yylineno, jump_statement_node, "BREAK ;", $1, semicollon);}
+    | BREAK ';'     {Node* semicollon = create_node(yylineno, semicollon_node, ";", NULL);
+                    $$ = create_node(yylineno, jump_statement_node, "BREAK ;", $1, semicollon, NULL);}
 
-    | RETURN ';'    {Node* semicollon = (Node *)malloc(sizeof(Node));
-                    semicollon->lexeme = ";";
-                    $$ = create_node(yylineno, jump_statement_node, "RETURN ;", $1, semicollon);}
+    | RETURN ';'    {Node* semicollon = create_node(yylineno, semicollon_node, ";", NULL);
+                    $$ = create_node(yylineno, jump_statement_node, "RETURN ;", $1, semicollon, NULL);}
 
-    | RETURN expr ';'   {Node* semicollon = (Node *)malloc(sizeof(Node));
-                        semicollon->lexeme = ";";
-                        $$ = create_node(yylineno, jump_statement_node, "RETURN expr ;", $1, $2, semicollon);}
+    | RETURN expr ';'   {Node* semicollon = create_node(yylineno, semicollon_node, ";", NULL);
+                        $$ = create_node(yylineno, jump_statement_node, "RETURN expr ;", $1, $2, semicollon, (char *)NULL);}
     ;
 
 /* Print Function */
 print_func 
-    : PRINTF '(' expr ')' ';'   {Node* open_brac = (Node *)malloc(sizeof(Node));
-    							open_brac->lexeme = "(";
-    							Node* close_brac = (Node *)malloc(sizeof(Node));
-    							close_brac->lexeme = ")";
-    							Node* semicollon = (Node *)malloc(sizeof(Node));
-    							semicollon->lexeme = ")";
-    							$$ = create_node(yylineno, print_func_node, "PRINTF ( expr ) ;", $1, open_brac, $3, close_brac, semicollon);}
+    : PRINTF '(' expr ')' ';'   {Node* open_round_brac = create_node(yylineno, open_round_brac_node, "(", NULL);
+    							Node* close_round_brac = create_node(yylineno, close_round_brac_node, ")", NULL);
+    							Node* semicollon = create_node(yylineno, semicollon_node, ";", NULL);
+    							$$ = create_node(yylineno, print_func_node, "PRINTF ( expr ) ;", $1, open_round_brac, $3, close_round_brac, semicollon, NULL);}
     ;
 %%
 
