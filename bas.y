@@ -3,7 +3,14 @@
     #include <stdlib.h>
     #include <stdio.h>
     #include "node.h"
+    #include "symbol_table.h"
     
+    #define UNDEFINED_TYPE -9999
+    #define FLOAT_TYPE 1
+    #define INT_TYPE 2
+    #define CHAR_TYPE 3
+    #define DOUBLE_TYPE 4
+
     #define FLOAT_SIZE 4
     #define INT_SIZE 4
     #define CHAR_SIZE 1
@@ -12,6 +19,7 @@
     extern void yyerror(const char *);  /* prints grammar violation message */
     extern int yylineno;
     extern Node* syntax_tree;
+    extern symbol_t symbol_table;
 
     //extern char yytext[];
     extern int column;
@@ -34,31 +42,40 @@
             printf("New symbol on table: %s.\n", lexeme);
             new_entry->name = lexeme;
             switch(tipo_global){
-                case 1: 
+                case FLOAT_TYPE: 
                     vars_size += FLOAT_SIZE;
                     new_entry->type = tipo_global;
                     new_entry->size = INT_SIZE;
                     new_entry->desloc = vars_size;
                     break; 
-                case 2:
+                case INT_TYPE:
                     vars_size += INT_SIZE;
                     new_entry->type = tipo_global;
                     new_entry->size = INT_SIZE;
                     new_entry->desloc = vars_size;
                     break;
-                case 3:
+                case CHAR_TYPE:
                     vars_size += CHAR_SIZE;
                     new_entry->type = tipo_global;
                     new_entry->size = CHAR_SIZE;
                     new_entry->desloc = vars_size;
                     break;
-                case 4:
+                case DOUBLE_TYPE:
                     vars_size += DOUBLE_SIZE;
                     new_entry->type = tipo_global;
                     new_entry->size = DOUBLE_SIZE;
                     new_entry->desloc = vars_size;
                     break;
+                default:
+                    printf("ERROR: Undefined type %s ^");
+                    exit(0);
             }
+
+            if(insert(&symbol_table, new_entry) == -1){
+                printf("ERROR: Cannot allocate %s into 'symbol_table'!\n");
+                exit(0);
+            }
+
         }
     }
 
@@ -125,9 +142,11 @@ external_declaration
 /* Declaration section */
 declaration
     : type assignment ';'   {Node* semicollon = create_node(yylineno, semicollon_node, ";", NULL);
-                            $$ = create_node(yylineno, declaration_node, "type assignment ;", $1, $2, semicollon, NULL);}
+                            $$ = create_node(yylineno, declaration_node, "type assignment ;", $1, $2, semicollon, NULL);
+                            type_node = 0;}
     | assignment ';'        {Node* semicollon = create_node(yylineno, semicollon_node, ";", NULL);
-                            $$ = create_node(yylineno, declaration_node, "assignment ;", $1, semicollon, NULL);}
+                            $$ = create_node(yylineno, declaration_node, "assignment ;", $1, semicollon, NULL);
+                            type_node = -1;}
     | function_call ';'     {Node* semicollon = create_node(yylineno, semicollon_node, ";", NULL);
                             $$ = create_node(yylineno, declaration_node, "function_call ;", $1, semicollon, NULL);} 
     | array_usage ';'       {Node* semicollon = create_node(yylineno, semicollon_node, ";", NULL);
@@ -205,15 +224,15 @@ array_usage
 /* Type section (does not include string yet) */
 type
     : FLOAT     {$$ = create_node(yylineno, type_node, "FLOAT", $1, NULL);
-                tipo_global = 1;}
+                tipo_global = FLOAT_TYPE;}
     | INT       {$$ = create_node(yylineno, type_node, "INT", $1, NULL);
-                tipo_global = 2;}
+                tipo_global = INT_TYPE;}
     | CHAR      {$$ = create_node(yylineno, type_node, "CHAR", $1, NULL);
-                tipo_global = 3;}
+                tipo_global = CHAR_TYPE;}
     | VOID      {$$ = create_node(yylineno, type_node, "VOID", $1, NULL);
                 tipo_global = 0;}
     | DOUBLE    {$$ = create_node(yylineno, type_node, "DOUBLE", $1, NULL);
-                tipo_global = 4;}
+                tipo_global = DOUBLE_TYPE;}
     ;
 
 /* Function call section */
