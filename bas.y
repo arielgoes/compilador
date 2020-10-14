@@ -1,10 +1,41 @@
 %error-verbose
 %{
     #include <stdlib.h>
+    #include <stdio.h>
     #include "node.h"
+    
+    #define INT_SIZE 4
+    #define CHAR_SIZE 1
+    #define FLOAT_SIZE 4
+    #define DOUBLE_SIZE 8
+
     extern void yyerror(const char *);  /* prints grammar violation message */
     extern int yylineno;
     extern Node* syntax_tree;
+
+    //extern char yytext[];
+    extern int column;
+
+    void yyerror(char const *s){
+        fflush(stdout);
+        printf("\n%*s\n%*s\n", column, "^", column, s);
+    }
+
+    int vars_size = 0;
+    
+
+
+    /*OLHA ISSO AQUI*/
+    void create_table_entry(char* lexeme){
+        if(lookup(symbol_table, lexeme)){
+            printf("%s symbol defined multiple times.\n", lexeme);
+            return;
+        }else{
+            entry_t new_entry = (entry_t*)malloc(sizeof(entry_t));
+            printf("New symbol on table: %s.\n", lexeme);
+        }
+    }
+
 %}
 
 %union{
@@ -300,13 +331,3 @@ print_func
     							$$ = create_node(yylineno, print_func_node, "PRINTF ( expr ) ;", $1, open_round_brac, $3, close_round_brac, semicollon, NULL);}
     ;
 %%
-
-#include <stdio.h>
-
-//extern char yytext[];
-extern int column;
-
-void yyerror(char const *s){
-    fflush(stdout);
-    printf("\n%*s\n%*s\n", column, "^", column, s);
-}
