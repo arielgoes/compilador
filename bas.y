@@ -4,9 +4,9 @@
     #include <stdio.h>
     #include "node.h"
     
+    #define FLOAT_SIZE 4
     #define INT_SIZE 4
     #define CHAR_SIZE 1
-    #define FLOAT_SIZE 4
     #define DOUBLE_SIZE 8
 
     extern void yyerror(const char *);  /* prints grammar violation message */
@@ -22,10 +22,9 @@
     }
 
     int vars_size = 0;
+    int tipo_global = 0;
+
     
-
-
-    /*OLHA ISSO AQUI*/
     void create_table_entry(char* lexeme){
         if(lookup(symbol_table, lexeme)){
             printf("%s symbol defined multiple times.\n", lexeme);
@@ -33,6 +32,33 @@
         }else{
             entry_t new_entry = (entry_t*)malloc(sizeof(entry_t));
             printf("New symbol on table: %s.\n", lexeme);
+            new_entry->name = lexeme;
+            switch(tipo_global){
+                case 1: 
+                    vars_size += FLOAT_SIZE;
+                    new_entry->type = tipo_global;
+                    new_entry->size = INT_SIZE;
+                    new_entry->desloc = vars_size;
+                    break; 
+                case 2:
+                    vars_size += INT_SIZE;
+                    new_entry->type = tipo_global;
+                    new_entry->size = INT_SIZE;
+                    new_entry->desloc = vars_size;
+                    break;
+                case 3:
+                    vars_size += CHAR_SIZE;
+                    new_entry->type = tipo_global;
+                    new_entry->size = CHAR_SIZE;
+                    new_entry->desloc = vars_size;
+                    break;
+                case 4:
+                    vars_size += DOUBLE_SIZE;
+                    new_entry->type = tipo_global;
+                    new_entry->size = DOUBLE_SIZE;
+                    new_entry->desloc = vars_size;
+                    break;
+            }
         }
     }
 
@@ -44,7 +70,7 @@
 };
 
 %token <no> WHILE FOR IF ELSE ELIF BREAK CONTINUE RETURN PRINTF
-%token <str> FLOAT INT CHAR VOID BOOL DOUBLE ID CONSTANT INCR DECR GE LE EQ NE LT GT AND OR NOT /*alterar constant mais tarde*/
+%token <str> FLOAT INT CHAR VOID DOUBLE ID CONSTANT INCR DECR GE LE EQ NE LT GT AND OR NOT /*alterar constant mais tarde*/
                 
 %type<no> atree
 %type<no> translation_unit       
@@ -165,7 +191,8 @@ assignment
     | '-' ID        {Node* sub = (Node*)malloc(sizeof(Node));
                     $$ = create_node(yylineno, assignment_node, "- ID", sub, $2, NULL);} 
     | CONSTANT  {$$ = create_node(yylineno, assignment_node, "CONSTANT", $1, NULL);}
-    | ID        {$$ = create_node(yylineno, assignment_node, "ID", $1, NULL);}
+    | ID        {$$ = create_node(yylineno, assignment_node, "ID", $1, NULL);
+                create_table_entry(ID);}
     ;
 
 /* Array usage */
@@ -177,12 +204,16 @@ array_usage
 
 /* Type section (does not include string yet) */
 type
-    : FLOAT     {$$ = create_node(yylineno, type_node, "FLOAT", $1, NULL);}
-    | INT       {$$ = create_node(yylineno, type_node, "INT", $1, NULL);}
-    | CHAR      {$$ = create_node(yylineno, type_node, "CHAR", $1, NULL);}
-    | VOID      {$$ = create_node(yylineno, type_node, "VOID", $1, NULL);}
-    | BOOL      {$$ = create_node(yylineno, type_node, "BOOL", $1, NULL);}
-    | DOUBLE    {$$ = create_node(yylineno, type_node, "DOUBLE", $1, NULL);}
+    : FLOAT     {$$ = create_node(yylineno, type_node, "FLOAT", $1, NULL);
+                tipo_global = 1;}
+    | INT       {$$ = create_node(yylineno, type_node, "INT", $1, NULL);
+                tipo_global = 2;}
+    | CHAR      {$$ = create_node(yylineno, type_node, "CHAR", $1, NULL);
+                tipo_global = 3;}
+    | VOID      {$$ = create_node(yylineno, type_node, "VOID", $1, NULL);
+                tipo_global = 0;}
+    | DOUBLE    {$$ = create_node(yylineno, type_node, "DOUBLE", $1, NULL);
+                tipo_global = 4;}
     ;
 
 /* Function call section */

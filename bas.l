@@ -60,7 +60,6 @@ E         ([Ee][+-]?{D}+)
 "int"						{count(); yylval.str = strdup(yytext); return(INT);} 
 "char"						{count(); yylval.str = strdup(yytext); return(CHAR);}
 "void"						{count(); yylval.str = strdup(yytext); return(VOID);}
-"bool"						{count(); yylval.str = strdup(yytext); return(BOOL);}
 
 L?\'(\\.|[^\\'\n])\'		{count(); return(CONSTANT);} 	/*char*/
 L?\"(\\.|[^\\"\n])*\"		{count(); return(CONSTANT);} 	/*string*/
