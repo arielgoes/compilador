@@ -25,11 +25,10 @@ typedef struct {
 } entry_t ;
 
 
-
 /** \brief Nodo da lista encadeada de entradas da tabela de simbolos
  *
  * Para cada hash calculado, a tabela de simbolos possui uma lista encadeada.
- * Seriam as entradas que dão conflito, todas mapeadas no indice certo da tabela.
+ * Seriam as entradas que dï¿½o conflito, todas mapeadas no indice certo da tabela.
  *
  */
 struct table_node_entry {
@@ -45,7 +44,9 @@ struct table_node_entry {
  */
 typedef struct {
     struct table_node_entry * entries[PRIME];
-} symbol_t ;
+} symbol_t;
+
+extern symbol_t symbol_table;
 
 /** \brief Inicializar a tabela de Hash.
  *

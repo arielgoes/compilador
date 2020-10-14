@@ -38,7 +38,7 @@
             printf("%s symbol defined multiple times.\n", lexeme);
             return;
         }else{
-            entry_t new_entry = (entry_t*)malloc(sizeof(entry_t));
+            entry_t* new_entry = (entry_t*)malloc(sizeof(entry_t));
             printf("New symbol on table: %s.\n", lexeme);
             new_entry->name = lexeme;
             switch(tipo_global){
@@ -143,10 +143,10 @@ external_declaration
 declaration
     : type assignment ';'   {Node* semicollon = create_node(yylineno, semicollon_node, ";", NULL);
                             $$ = create_node(yylineno, declaration_node, "type assignment ;", $1, $2, semicollon, NULL);
-                            type_node = 0;}
+                            tipo_global = 0;}
     | assignment ';'        {Node* semicollon = create_node(yylineno, semicollon_node, ";", NULL);
                             $$ = create_node(yylineno, declaration_node, "assignment ;", $1, semicollon, NULL);
-                            type_node = -1;}
+                            tipo_global = -1;}
     | function_call ';'     {Node* semicollon = create_node(yylineno, semicollon_node, ";", NULL);
                             $$ = create_node(yylineno, declaration_node, "function_call ;", $1, semicollon, NULL);} 
     | array_usage ';'       {Node* semicollon = create_node(yylineno, semicollon_node, ";", NULL);
