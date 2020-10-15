@@ -22,7 +22,7 @@ typedef struct {
    int size;    /**< numero de Bytes necessarios para armazenamento. */
    int desloc;  /**< Endereco da proxima variavel. */
    void* extra; /**< qualquer informacao extra. */
-} entry_t ;
+} entry_t;
 
 
 /** \brief Nodo da lista encadeada de entradas da tabela de simbolos

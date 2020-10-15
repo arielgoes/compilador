@@ -10,7 +10,7 @@
 #define EOS '\0'
 
 
-symbol_t symbol_table;
+symbol_t* symbol_table;
 
 
 int hashpjw(s)

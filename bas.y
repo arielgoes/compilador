@@ -126,7 +126,7 @@
 
 atree
     :translation_unit {$$ = create_node(yylineno, atree_node, "atree", $1, NULL); syntax_tree = $$;}
-    ; 
+    ;
 
 /* starting point for yacc */
 translation_unit
