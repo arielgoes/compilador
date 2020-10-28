@@ -10,7 +10,7 @@ int lineno;
 
 extern FILE* yyin;
 extern int yyparse();
-extern Node * syntax_tree;
+Node* syntax_tree;
 
 int main(int argc, char* argv[])
 {

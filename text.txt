@@ -1,7 +1,7 @@
 //programa teste: ariel e victor
 
 float foo(int i){
-	for (i = 0; i < 9; i++){
+	for (i; i < 9; i++){
 		printf("eai man kk");
 	}
 }
@@ -32,7 +32,6 @@ int yywrap()        /* called at end of input */
 
 int column = 0;
 void count(){
-	int i;
 
 	for (i = 0; yytext[i] != '\0'; i++){
 		if (yytext[i] == '\n'){
@@ -49,7 +48,7 @@ void count(){
 }
 
 void comment(){
-	char c, prev = 0;
+	char c, prev = 'i';
   
 	while ((c = input()) != 0)      /* (EOF maps to 0) */
 	{

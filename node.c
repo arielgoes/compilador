@@ -116,13 +116,12 @@ int height(Node* n){
 
 
 void uncompile(FILE* outfile, Node *n){ //fazer...
-	if(n != NULL){
-		printf("n->lexeme: %s\n", n->lexeme); 
+	//if(n != NULL){
+		printf("n->lexeme: %s, n->n_children: %s\n", n->lexeme, n->n_child); 
         for(int i = 0; i < n->n_child; i++){
             uncompile(outfile, n->children[i]);
         }
-	}
-    return;
+	//}
 }
 
 void print_node(Node* node){

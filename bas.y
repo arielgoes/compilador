@@ -36,7 +36,7 @@
     
     void create_table_entry(char* lexeme){
         if(lookup(symbol_table, lexeme)){
-            printf("%s symbol defined multiple times.\n", lexeme);
+            printf("'%s' symbol defined multiple times.\n", lexeme);
             return;
         }else{
             entry_t* new_entry = (entry_t*)malloc(sizeof(entry_t));
@@ -68,7 +68,7 @@
                     new_entry->desloc = vars_size;
                     break;
                 default:
-                    printf("ERROR: Undefined type %s ^");
+                    printf("ERROR: Undefined type '%s' ^\n", lexeme);
                     exit(0);
             }
 
@@ -128,7 +128,8 @@
 %%
 
 atree
-    :translation_unit {$$ = create_node(yylineno, atree_node, "atree", $1, NULL); syntax_tree = $$;}
+    :translation_unit {$$ = create_node(yylineno, atree_node, "atree", $1, NULL); syntax_tree = $$;
+    uncompile(stdout, $1);}
     ;
 
 /* starting point for yacc */
@@ -157,7 +158,8 @@ declaration
                             tipo_global = -1;}
     | type array_usage ';'  {Node* semicollon = create_node(yylineno, semicollon_node, ";", NULL);
                             $$ = create_node(yylineno, declaration_node, "assignment ;", $1, $2, semicollon, NULL);
-                            tipo_global = 0;}
+                            tipo_global = 0;
+                            if(tipo_global != -1){create_table_entry($1);}}
     ;
 
 /* Assignment section */
@@ -165,14 +167,17 @@ assignment
     : ID '=' assignment         {Node* eq = create_node(yylineno, eq_node, "=", NULL);
                                 Node* id = create_node(yylineno, id_node, "ID", NULL);
                                 $$ = create_node(yylineno, assignment_node, "ID = assignment", id, eq, $3, NULL);
-                                /*if(tipo_global != -1){create_table_entry(ID);}*/}
+                                if(tipo_global != -1){
+                                    printf(">>>>>>>>>>>amigo esto aki!... tipo_global '%d'\n", tipo_global);
+                                    create_table_entry($1);}}
     | ID '=' function_call      {Node* eq = create_node(yylineno, eq_node, "=", NULL, NULL);
                                 $$ = create_node(yylineno, assignment_node, "ID = function_call", $1, eq, $3, NULL);
-                                /*if(tipo_global != -1){create_table_entry(ID);}*/}
+                                if(tipo_global != -1){create_table_entry($1);}}
     | array_usage '=' assignment    {Node* eq = create_node(yylineno, eq_node, "=", NULL);
                                     $$ = create_node(yylineno, assignment_node, "array_usage = assignment", $1, eq, $3, NULL);}
     | ID ',' assignment         {Node* collon = create_node(yylineno, collon_node, ",", NULL);
-                                $$ = create_node(yylineno, assignment_node, "ID , assignment", $1, collon, $3, NULL);}
+                                $$ = create_node(yylineno, assignment_node, "ID , assignment", $1, collon, $3, NULL);
+                                if(tipo_global != -1){create_table_entry($1);}}
     | CONSTANT ',' assignment   {Node* collon = create_node(yylineno, collon_node, ",", NULL);
                                 $$ = create_node(yylineno, assignment_node, "CONSTANT, assignment", $1, collon, $3, NULL);}
     | ID '+' assignment     {Node* sum = create_node(yylineno, sum_node, "+", NULL);
@@ -218,15 +223,14 @@ assignment
                     $$ = create_node(yylineno, assignment_node, "- ID", sub, $2, NULL);} 
     | CONSTANT  {$$ = create_node(yylineno, assignment_node, "CONSTANT", $1, NULL);}
     | ID        {$$ = create_node(yylineno, assignment_node, "ID", $1, NULL);
-                /*if(tipo_global != -1){create_table_entry(ID);}*/}
+                if(tipo_global != -1){create_table_entry($1); printf(" >>>> amigo estoy aca kk, tipo_global '%d'\n", tipo_global);}}
     ;
 
 /* Array usage */
 array_usage
     : ID '[' assignment ']' {Node* open_sqr_brac = create_node(yylineno, open_sqr_brac_node, "[", NULL);
                             Node* close_sqr_brac = create_node(yylineno, close_sqr_brac_node, "]", NULL);
-                            $$ = create_node(yylineno, array_usage_node, "ID [ assignment ]", $1, open_sqr_brac, $3, close_sqr_brac, NULL);
-                            /*if(tipo_global != -1){create_table_entry(ID);}*/}
+                            $$ = create_node(yylineno, array_usage_node, "ID [ assignment ]", $1, open_sqr_brac, $3, close_sqr_brac, NULL);}
     ;
 
 /* Type section (does not include string yet) */
@@ -261,7 +265,7 @@ function
                                                     Node* id = create_node(yylineno, id_node, "ID", NULL);
                                                     $$ = create_node(yylineno, function_node, "type ID ( arg_list_opt ) compound_stmt", 
                                                     $1, id, open_round_brac, $4, close_round_brac, $6, NULL);
-                                                    /*if(tipo_global != -1){create_table_entry(ID);}*/}  
+                                                    /*if(tipo_global != -1){create_table_entry($1);}*/}  
     ;
 
 arg_list_opt
