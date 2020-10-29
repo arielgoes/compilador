@@ -85,7 +85,7 @@ struct tac* create_inst_tac(const char* res, const char* arg1,
     }
 
     //debugging
-    printf("\ninstrucao: %s = %s %s %s\n", new_tac->res, new_tac->arg1, new_tac->op, new_tac->arg2);
+    printf("\n>>> res: '%s' | arg1: '%s' | op: '%s' | arg2: '%s'\n", new_tac->res, new_tac->arg1, new_tac->op, new_tac->arg2);
 
     return new_tac;
 }

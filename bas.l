@@ -61,11 +61,11 @@ E         ([Ee][+-]?{D}+)
 "char"						{count(); yylval.str = strdup(yytext); return(CHAR);}
 "void"						{count(); yylval.str = strdup(yytext); return(VOID);}
 
-L?\'(\\.|[^\\'\n])\'		{count(); return(CONSTANT);} 	/*char*/
-L?\"(\\.|[^\\"\n])*\"		{count(); return(CONSTANT);} 	/*string*/
-{D}+                   		{count(); return(CONSTANT);} 	/*integer*/
-{D}*"."{D}+{E}?				{count(); return(CONSTANT);} 	/*float*/
-{D}+"."{D}*{E}?				{count(); return(CONSTANT);} 	/*float*/
+L?\'(\\.|[^\\'\n])\'		{count(); yylval.str = strdup(yytext); return(CONSTANT);} 	/*char*/
+L?\"(\\.|[^\\"\n])*\"		{count(); yylval.str = strdup(yytext); return(CONSTANT);} 	/*string*/
+{D}+                   		{count(); yylval.str = strdup(yytext); return(CONSTANT);} 	/*integer*/
+{D}*"."{D}+{E}?				{count(); yylval.str = strdup(yytext); return(CONSTANT);} 	/*float*/
+{D}+"."{D}*{E}?				{count(); yylval.str = strdup(yytext); return(CONSTANT);} 	/*float*/
 															/*booleano*/ 
 
 {L}({L}|{D})* 				{count(); yylval.str = strdup(yytext); return(ID);} /*identififier (e.g., foo, a, myVar, myFunc)*/ 

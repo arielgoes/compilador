@@ -202,7 +202,7 @@ assignment
                             $$ = create_node(yylineno, assignment_node, "ID % assignment", $1, mod, $3, NULL);}
 
     | CONSTANT '+' assignment       {Node* sum = create_node(yylineno, sum_node, "+", NULL);
-                                    $$ = create_node(yylineno, assignment_node, "CONSTANT + assignment", $1, sum, $3, NULL);
+                                    $$ = create_node(yylineno, assignment_node, (char *)$$, $1, sum, $3, NULL);
                                     struct tac* new_tac = create_inst_tac($$->lexeme, $1, "+", $3->lexeme);}
     | CONSTANT '-' assignment       {Node* sub = create_node(yylineno, sub_node, "-", NULL);
                                     $$ = create_node(yylineno, assignment_node, "CONSTANT - assignment", $1, sub, $3), NULL;}
@@ -228,7 +228,7 @@ assignment
                     $$ = create_node(yylineno, assignment_node, "- CONSTANT", sub, $2, NULL);}
     | '-' ID        {Node* sub = (Node*)malloc(sizeof(Node));
                     $$ = create_node(yylineno, assignment_node, "- ID", sub, $2, NULL);} 
-    | CONSTANT  {$$ = create_node(yylineno, assignment_node, "CONSTANT", $1, NULL);}
+    | CONSTANT  {$$ = create_node(yylineno, assignment_node, (char *)$1, $1, NULL);}
     | ID        {$$ = create_node(yylineno, assignment_node, "ID", $1, NULL);}
     ;
 
