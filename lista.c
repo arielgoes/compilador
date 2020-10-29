@@ -85,18 +85,38 @@ struct tac* create_inst_tac(const char* res, const char* arg1,
     }
 
     //debugging
-    printf("instrucao: %s = %s %s %s\n", new_tac->res, new_tac->arg1, new_tac->op, new_tac->arg2);
+    printf("\ninstrucao: %s = %s %s %s\n", new_tac->res, new_tac->arg1, new_tac->op, new_tac->arg2);
 
     return new_tac;
 }
 
 
-void print_inst_tac(FILE* out, struct tac i){
-    printf("instrucao: %s = %s %s %s\n", i.res, i.arg1, i.op, i.arg2);
+void print_inst_tac(FILE* out, struct tac* i){
+    printf("\n%s %s %s\n", i->res, i->arg1, i->op, i->arg2);
 }
 
 
 void print_tac(FILE* out, struct node_tac * code){
 
 }
+
+
+void cat_tac(struct node_tac** code_a, struct node_tac** code_b){
+    if(code_a[0] == NULL){
+        code_a[0] == code_b[0];
+    }else{
+        if(code_b[0]){
+            struct node_tac* tac_pointer;
+            tac_pointer = code_a[0];
+
+            while(tac_pointer->next){
+                tac_pointer = tac_pointer->next;
+            }
+
+            tac_pointer->next = code_b[0];
+            code_b[0]->prev = tac_pointer;
+        }
+    }
+}
+
 

@@ -41,7 +41,7 @@ struct tac* create_inst_tac(const char* res, const char* arg1,
  * @param out um ponteiro sobre um arquivo (aberto) aonde ira ser escrita a instrucao.
  * @param i a instrucao a ser impressa.
  */
-void print_inst_tac(FILE* out, struct tac i);
+void print_inst_tac(FILE* out, struct tac* i);
 
 /** Um elemento basico da lista. O campo 'inst' aponta para a informacao a ser
  * armazenada em um elemento da lista. O campo 'number' serve para numerar

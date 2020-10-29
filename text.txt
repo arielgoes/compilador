@@ -1,20 +1,17 @@
 //programa teste: ariel e victor
-
-float foo(int i){
-	for (i; i < 9; i++){
-		printf("eai man kk");
-	}
-}
+int column = 0;
 
 int main(){
-	int i = 1;
+	int xyz = 0;
+	xyz = 1 + 2;
 	float f = 10;
-	10/10;
 	foo(i);
 
 	if(i = 1){
 		a = 5;
 	}
+
+	//10/10;
 
 	if(a > 5){
 		printf("5");
@@ -30,7 +27,14 @@ int yywrap()        /* called at end of input */
     return 1;           /* terminate now */
 }
 
-int column = 0;
+
+float foo(int d){
+	for (d; d < 9; d++){
+		printf("eai man kk");
+	}
+}
+
+
 void count(){
 
 	for (i = 0; yytext[i] != '\0'; i++){
@@ -47,10 +51,11 @@ void count(){
 	}
 }
 
-void comment(){
-	char c, prev = 'i';
+int comment(){
+	char c;
+	char prev = 'i';
   
-	while ((c = input()) != 0)      /* (EOF maps to 0) */
+	while (c == 0)      /* (EOF maps to 0) */
 	{
 		if (c == '/' && prev == '*'){
 			return;
