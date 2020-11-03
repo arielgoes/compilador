@@ -33,8 +33,11 @@
     int vars_size = 0;
     int tipo_global = 0;
 
-    char* res = "teste";
 
+    char* tac_arg1 = "tac_arg1";
+    char* tac_arg2 = "tac_arg2";
+    char* tac_op = "tac_op";
+    int isTac = 0;
     
     void create_table_entry(char* lexeme){
         if(lookup(symbol_table, lexeme)){
@@ -168,12 +171,13 @@ declaration_assignment
                                 Node* id = create_node(yylineno, id_node, "ID", NULL);
                                 $$ = create_node(yylineno, assignment_node, "ID = assignment", id, eq, $3, NULL);
                                 create_table_entry($1);
-                                res = $1;
-                                printf("\nres '%s'\n", res);}
+                                if(isTac == 1){
+                                    struct tac* new_tac = create_inst_tac((char *)$1, tac_arg1, tac_op, tac_arg2);
+                                    isTac = 0;
+                                }}
     | ID '=' function_call      {Node* eq = create_node(yylineno, eq_node, "=", NULL, NULL);
                                 $$ = create_node(yylineno, assignment_node, "ID = function_call", $1, eq, $3, NULL);
-                                create_table_entry($1);
-                                res = $1;}
+                                create_table_entry($1);}
     | ID                        {$$ = create_node(yylineno, assignment_node, "ID", $1, NULL);
                                 create_table_entry($1);}
     ;                             
@@ -184,59 +188,105 @@ assignment
     : ID '=' assignment         {Node* eq = create_node(yylineno, eq_node, "=", NULL);
                                 Node* id = create_node(yylineno, id_node, "ID", NULL);
                                 $$ = create_node(yylineno, assignment_node, "ID = assignment", id, eq, $3, NULL);
-                                res = $1;}
+                                if(isTac == 1){
+                                    struct tac* new_tac = create_inst_tac((char *)$1, tac_arg1, tac_op, tac_arg2);
+                                    isTac = 0;
+                                }}
     | ID '=' function_call      {Node* eq = create_node(yylineno, eq_node, "=", NULL, NULL);
-                                $$ = create_node(yylineno, assignment_node, "ID = function_call", $1, eq, $3, NULL);}
+                                $$ = create_node(yylineno, assignment_node, "ID = function_call", $1, eq, $3, NULL);
+                                isTac = 0;}
     | array_usage '=' assignment    {Node* eq = create_node(yylineno, eq_node, "=", NULL);
-                                    $$ = create_node(yylineno, assignment_node, "array_usage = assignment", $1, eq, $3, NULL);}
+                                    $$ = create_node(yylineno, assignment_node, "array_usage = assignment", $1, eq, $3, NULL);
+                                    isTac = 0;}
     | CONSTANT ',' assignment   {Node* collon = create_node(yylineno, collon_node, ",", NULL);
-                                $$ = create_node(yylineno, assignment_node, "CONSTANT, assignment", $1, collon, $3, NULL);}
+                                $$ = create_node(yylineno, assignment_node, "CONSTANT, assignment", $1, collon, $3, NULL);
+                                isTac = 0;}
     | ID '+' assignment     {Node* sum = create_node(yylineno, sum_node, "+", NULL);
-                            $$ = create_node(yylineno, assignment_node, "ID + assignment", $1, sum, $3, NULL);
-                            res = $1;}
+                            tac_arg1 = (char*)$1;
+                            tac_op = "+";
+                            isTac = 1;
+                            $$ = create_node(yylineno, assignment_node, "ID + assignment", $1, sum, $3, NULL);}
 
     | ID '-' assignment     {Node* sub = create_node(yylineno, sub_node, "-", NULL);
+                            tac_arg1 = (char*)$1;
+                            tac_op = "-";
+                            isTac = 1;
                             $$ = create_node(yylineno, assignment_node, "ID - assignment", $1, sub, $3, NULL);}
 
     | ID '*' assignment     {Node* mult = create_node(yylineno, mult_node, "*", NULL);
+                            tac_arg1 = (char*)$1;
+                            tac_op = "*";
+                            isTac = 1;
                             $$ = create_node(yylineno, assignment_node, "ID * assignment", $1, mult, $3, NULL);}
 
     | ID '/' assignment     {Node* mult = create_node(yylineno, div_node, "/", NULL);
+                            tac_arg1 = (char*)$1;
+                            tac_op = "/";
+                            isTac = 1;
                             $$ = create_node(yylineno, assignment_node, "ID / assignment", $1, div, $3, NULL);}
 
     | ID '%' assignment     {Node* mod = create_node(yylineno, mod_node, "%", NULL);
+                            tac_arg1 = (char*)$1;
+                            tac_op = "%";
+                            isTac = 1;
                             $$ = create_node(yylineno, assignment_node, "ID % assignment", $1, mod, $3, NULL);}
 
     | CONSTANT '+' assignment       {Node* sum = create_node(yylineno, sum_node, "+", NULL);
-                                    $$ = create_node(yylineno, assignment_node, (char *)$$, $1, sum, $3, NULL);
-                                    struct tac* new_tac = create_inst_tac(res, $1, "+", $3->lexeme);
-                                    res = $1;}
+                                    tac_arg1 = (char*)$1;
+                                    tac_op = "+";
+                                    isTac = 1;
+                                    $$ = create_node(yylineno, assignment_node, "teste", $1, sum, $3, NULL);}
     | CONSTANT '-' assignment       {Node* sub = create_node(yylineno, sub_node, "-", NULL);
+                                    tac_arg1 = (char*)$1;
+                                    tac_op = "-";
+                                    isTac = 1;
                                     $$ = create_node(yylineno, assignment_node, "CONSTANT - assignment", $1, sub, $3), NULL;}
     | CONSTANT '*' assignment       {Node* mult = create_node(yylineno, mult_node, "*", NULL);
+                                    tac_arg1 = (char*)$1;
+                                    tac_op = "*";
+                                    isTac = 1;
                                     $$ = create_node(yylineno, assignment_node, "CONSTANT * assignment", $1, mult, $3, NULL);}
     | CONSTANT '/' assignment       {Node* div = create_node(yylineno, div_node, "/", NULL);
+                                    tac_arg1 = (char*)$1;
+                                    tac_op = "/";
+                                    isTac = 1;
                                     $$ = create_node(yylineno, assignment_node, "CONSTANT / assignment", $1, div, $3, NULL);} 
     | CONSTANT '%' assignment       {Node* mod = create_node(yylineno, mod_node, "%", NULL);
-                                    $$ = create_node(yylineno, assignment_node, "CONSTANT % assignment", $1, mod, $3, NULL);}
+                                    tac_arg1 = (char*)$1;
+                                    tac_op = "%";
+                                    isTac = 1;
+                                    $$ = create_node(yylineno, assignment_node, "CONSTANT % assignment", $1, mod, $3, NULL);
+                                    }
 
-    | ID INCR   {$$ = create_node(yylineno, assignment_node, "ID INCR", $1, $2, NULL);}
+    | ID INCR   {$$ = create_node(yylineno, assignment_node, "ID INCR", $1, $2, NULL);
+                struct tac* new_tac = create_inst_tac((char *)$1, (char *)$1, "+", "1");
+                isTac = 0;}
 
-    | ID DECR   {$$ = create_node(yylineno, assignment_node, "ID DECR", $1, $2, NULL);}
+    | ID DECR   {$$ = create_node(yylineno, assignment_node, "ID DECR", $1, $2, NULL);
+                struct tac* new_tac = create_inst_tac((char *)$1, (char *)$1, "-", "1");
+                isTac = 0;}
 
     | '(' assignment ')'    {Node* open_round_brac = create_node(yylineno, open_round_brac_node, "(", NULL);
                             Node* close_round_brac = create_node(yylineno, close_round_brac_node, ")", NULL);
-                            $$ = create_node(yylineno, assignment_node, "( assignment )", open_round_brac, $2, close_round_brac, NULL);}
+                            $$ = create_node(yylineno, assignment_node, "( assignment )", open_round_brac, $2, close_round_brac, NULL);
+                            isTac = 0;}
     | '-' '(' assignment ')'    {Node* sub = create_node(yylineno, sub_node, "-", NULL);
                                 Node* open_round_brac = create_node(yylineno, open_round_brac_node, "(", NULL);
                                 Node* close_round_brac = create_node(yylineno, close_round_brac_node, ")", NULL);
-                                $$ = create_node(yylineno, assignment_node, "( assignment )", sub, open_round_brac, $3, close_round_brac, NULL);}
+                                $$ = create_node(yylineno, assignment_node, "( assignment )", sub, open_round_brac, $3, close_round_brac, NULL);
+                                isTac = 0;}
     | '-' CONSTANT  {Node* sub = create_node(yylineno, sub_node, "-", NULL);
-                    $$ = create_node(yylineno, assignment_node, "- CONSTANT", sub, $2, NULL);}
+                    $$ = create_node(yylineno, assignment_node, "- CONSTANT", sub, $2, NULL);
+                    isTac = 0;}
     | '-' ID        {Node* sub = (Node*)malloc(sizeof(Node));
-                    $$ = create_node(yylineno, assignment_node, "- ID", sub, $2, NULL);} 
-    | CONSTANT  {$$ = create_node(yylineno, assignment_node, (char *)$1, $1, NULL);}
-    | ID        {$$ = create_node(yylineno, assignment_node, (char *)$1, $1, NULL);}
+                    $$ = create_node(yylineno, assignment_node, "- ID", sub, $2, NULL);
+                    isTac = 0;} 
+    | CONSTANT  {$$ = create_node(yylineno, assignment_node, (char *)$1, $1, NULL);
+                tac_arg2 = (char *)$1;
+                isTac = 0;}
+    | ID        {$$ = create_node(yylineno, assignment_node, (char *)$1, $1, NULL);
+                tac_arg2 = (char *)$1;
+                isTac = 0;}
     ;
 
 /* Array usage */

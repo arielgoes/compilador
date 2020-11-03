@@ -97,8 +97,11 @@
     int vars_size = 0;
     int tipo_global = 0;
 
-    char* res = "teste";
 
+    char* tac_arg1 = "tac_arg1";
+    char* tac_arg2 = "tac_arg2";
+    char* tac_op = "tac_op";
+    int isTac = 0;
     
     void create_table_entry(char* lexeme){
         if(lookup(symbol_table, lexeme)){
@@ -149,7 +152,7 @@
     }
 
 
-#line 153 "y.tab.c" /* yacc.c:339  */
+#line 156 "y.tab.c" /* yacc.c:339  */
 
 # ifndef YY_NULLPTR
 #  if defined __cplusplus && 201103L <= __cplusplus
@@ -247,12 +250,12 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 89 "bas.y" /* yacc.c:355  */
+#line 92 "bas.y" /* yacc.c:355  */
 
     struct node* no;
     char *str; 
 
-#line 256 "y.tab.c" /* yacc.c:355  */
+#line 259 "y.tab.c" /* yacc.c:355  */
 };
 
 typedef union YYSTYPE YYSTYPE;
@@ -269,7 +272,7 @@ int yyparse (void);
 
 /* Copy the second part of user declarations.  */
 
-#line 273 "y.tab.c" /* yacc.c:358  */
+#line 276 "y.tab.c" /* yacc.c:358  */
 
 #ifdef short
 # undef short
@@ -569,15 +572,15 @@ static const yytype_uint8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,   135,   135,   141,   142,   146,   147,   152,   154,   156,
-     158,   160,   167,   173,   177,   184,   188,   190,   192,   194,
-     198,   201,   204,   207,   210,   214,   216,   218,   220,   223,
-     225,   227,   230,   234,   236,   238,   239,   244,   250,   258,
-     260,   262,   264,   266,   272,   276,   283,   291,   292,   296,
-     299,   303,   309,   315,   316,   320,   321,   322,   323,   324,
-     325,   326,   333,   341,   348,   356,   363,   368,   369,   373,
-     378,   379,   380,   384,   385,   386,   387,   388,   389,   390,
-     391,   396,   399,   402,   405,   411
+       0,   138,   138,   144,   145,   149,   150,   155,   157,   159,
+     161,   163,   170,   178,   181,   188,   195,   198,   201,   204,
+     210,   216,   222,   228,   234,   239,   244,   249,   254,   261,
+     265,   269,   273,   278,   281,   284,   287,   294,   300,   308,
+     310,   312,   314,   316,   322,   326,   333,   341,   342,   346,
+     349,   353,   359,   365,   366,   370,   371,   372,   373,   374,
+     375,   376,   383,   391,   398,   406,   413,   418,   419,   423,
+     428,   429,   430,   434,   435,   436,   437,   438,   439,   440,
+     441,   446,   449,   452,   455,   461
 };
 #endif
 
@@ -1479,600 +1482,647 @@ yyreduce:
   switch (yyn)
     {
         case 2:
-#line 135 "bas.y" /* yacc.c:1646  */
+#line 138 "bas.y" /* yacc.c:1646  */
     {(yyval.no) = create_node(yylineno, atree_node, "atree", (yyvsp[0].no), NULL); syntax_tree = (yyval.no);
     uncompile(stdout, (yyvsp[0].no));}
-#line 1486 "y.tab.c" /* yacc.c:1646  */
+#line 1489 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 3:
-#line 141 "bas.y" /* yacc.c:1646  */
+#line 144 "bas.y" /* yacc.c:1646  */
     {(yyval.no) = create_node(yylineno, translation_unit_node, "external_declaration", (yyvsp[0].no), NULL);}
-#line 1492 "y.tab.c" /* yacc.c:1646  */
+#line 1495 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 4:
-#line 142 "bas.y" /* yacc.c:1646  */
+#line 145 "bas.y" /* yacc.c:1646  */
     {(yyval.no)=create_node(yylineno, translation_unit_node, "external_declaration translation_unit", (yyvsp[-1].no), (yyvsp[0].no), NULL);}
-#line 1498 "y.tab.c" /* yacc.c:1646  */
+#line 1501 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 5:
-#line 146 "bas.y" /* yacc.c:1646  */
+#line 149 "bas.y" /* yacc.c:1646  */
     { (yyval.no) = create_node(yylineno, external_declaration_node, "function", (yyvsp[0].no), NULL); }
-#line 1504 "y.tab.c" /* yacc.c:1646  */
+#line 1507 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 6:
-#line 147 "bas.y" /* yacc.c:1646  */
+#line 150 "bas.y" /* yacc.c:1646  */
     { (yyval.no) = create_node(yylineno, external_declaration_node, "declaration", (yyvsp[0].no), NULL); }
-#line 1510 "y.tab.c" /* yacc.c:1646  */
+#line 1513 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 7:
-#line 152 "bas.y" /* yacc.c:1646  */
+#line 155 "bas.y" /* yacc.c:1646  */
     {Node* semicollon = create_node(yylineno, semicollon_node, ";", NULL);
                                         (yyval.no) = create_node(yylineno, declaration_node, "type assignment ;", (yyvsp[-2].str), (yyvsp[-1].no), semicollon, NULL);}
-#line 1517 "y.tab.c" /* yacc.c:1646  */
+#line 1520 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 8:
-#line 154 "bas.y" /* yacc.c:1646  */
+#line 157 "bas.y" /* yacc.c:1646  */
     {Node* semicollon = create_node(yylineno, semicollon_node, ";", NULL);
                                         (yyval.no) = create_node(yylineno, declaration_node, "assignment ;", (yyvsp[-1].no), semicollon, NULL);}
-#line 1524 "y.tab.c" /* yacc.c:1646  */
+#line 1527 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 9:
-#line 156 "bas.y" /* yacc.c:1646  */
+#line 159 "bas.y" /* yacc.c:1646  */
     {Node* semicollon = create_node(yylineno, semicollon_node, ";", NULL);
                                         (yyval.no) = create_node(yylineno, declaration_node, "function_call ;", (yyvsp[-1].no), semicollon, NULL);}
-#line 1531 "y.tab.c" /* yacc.c:1646  */
+#line 1534 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 10:
-#line 158 "bas.y" /* yacc.c:1646  */
+#line 161 "bas.y" /* yacc.c:1646  */
     {Node* semicollon = create_node(yylineno, semicollon_node, ";", NULL);
                                         (yyval.no) = create_node(yylineno, declaration_node, "array_usage ;", (yyvsp[-1].no), semicollon, NULL);}
-#line 1538 "y.tab.c" /* yacc.c:1646  */
+#line 1541 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 11:
-#line 160 "bas.y" /* yacc.c:1646  */
+#line 163 "bas.y" /* yacc.c:1646  */
     {Node* semicollon = create_node(yylineno, semicollon_node, ";", NULL);
                                         (yyval.no) = create_node(yylineno, declaration_node, "assignment ;", (yyvsp[-2].str), (yyvsp[-1].no), semicollon, NULL);}
-#line 1545 "y.tab.c" /* yacc.c:1646  */
+#line 1548 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 12:
-#line 167 "bas.y" /* yacc.c:1646  */
+#line 170 "bas.y" /* yacc.c:1646  */
     {Node* eq = create_node(yylineno, eq_node, "=", NULL);
                                 Node* id = create_node(yylineno, id_node, "ID", NULL);
                                 (yyval.no) = create_node(yylineno, assignment_node, "ID = assignment", id, eq, (yyvsp[0].no), NULL);
                                 create_table_entry((yyvsp[-2].str));
-                                res = (yyvsp[-2].str);
-                                printf("\nres '%s'\n", res);}
-#line 1556 "y.tab.c" /* yacc.c:1646  */
+                                if(isTac == 1){
+                                    struct tac* new_tac = create_inst_tac((char *)(yyvsp[-2].str), tac_arg1, tac_op, tac_arg2);
+                                    isTac = 0;
+                                }}
+#line 1561 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 13:
-#line 173 "bas.y" /* yacc.c:1646  */
+#line 178 "bas.y" /* yacc.c:1646  */
     {Node* eq = create_node(yylineno, eq_node, "=", NULL, NULL);
                                 (yyval.no) = create_node(yylineno, assignment_node, "ID = function_call", (yyvsp[-2].str), eq, (yyvsp[0].no), NULL);
-                                create_table_entry((yyvsp[-2].str));
-                                res = (yyvsp[-2].str);}
-#line 1565 "y.tab.c" /* yacc.c:1646  */
+                                create_table_entry((yyvsp[-2].str));}
+#line 1569 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 14:
-#line 177 "bas.y" /* yacc.c:1646  */
+#line 181 "bas.y" /* yacc.c:1646  */
     {(yyval.no) = create_node(yylineno, assignment_node, "ID", (yyvsp[0].str), NULL);
                                 create_table_entry((yyvsp[0].str));}
-#line 1572 "y.tab.c" /* yacc.c:1646  */
+#line 1576 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 15:
-#line 184 "bas.y" /* yacc.c:1646  */
+#line 188 "bas.y" /* yacc.c:1646  */
     {Node* eq = create_node(yylineno, eq_node, "=", NULL);
                                 Node* id = create_node(yylineno, id_node, "ID", NULL);
                                 (yyval.no) = create_node(yylineno, assignment_node, "ID = assignment", id, eq, (yyvsp[0].no), NULL);
-                                res = (yyvsp[-2].str);}
-#line 1581 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 16:
-#line 188 "bas.y" /* yacc.c:1646  */
-    {Node* eq = create_node(yylineno, eq_node, "=", NULL, NULL);
-                                (yyval.no) = create_node(yylineno, assignment_node, "ID = function_call", (yyvsp[-2].str), eq, (yyvsp[0].no), NULL);}
+                                if(isTac == 1){
+                                    struct tac* new_tac = create_inst_tac((char *)(yyvsp[-2].str), tac_arg1, tac_op, tac_arg2);
+                                    isTac = 0;
+                                }}
 #line 1588 "y.tab.c" /* yacc.c:1646  */
     break;
 
+  case 16:
+#line 195 "bas.y" /* yacc.c:1646  */
+    {Node* eq = create_node(yylineno, eq_node, "=", NULL, NULL);
+                                (yyval.no) = create_node(yylineno, assignment_node, "ID = function_call", (yyvsp[-2].str), eq, (yyvsp[0].no), NULL);
+                                isTac = 0;}
+#line 1596 "y.tab.c" /* yacc.c:1646  */
+    break;
+
   case 17:
-#line 190 "bas.y" /* yacc.c:1646  */
+#line 198 "bas.y" /* yacc.c:1646  */
     {Node* eq = create_node(yylineno, eq_node, "=", NULL);
-                                    (yyval.no) = create_node(yylineno, assignment_node, "array_usage = assignment", (yyvsp[-2].no), eq, (yyvsp[0].no), NULL);}
-#line 1595 "y.tab.c" /* yacc.c:1646  */
+                                    (yyval.no) = create_node(yylineno, assignment_node, "array_usage = assignment", (yyvsp[-2].no), eq, (yyvsp[0].no), NULL);
+                                    isTac = 0;}
+#line 1604 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 18:
-#line 192 "bas.y" /* yacc.c:1646  */
+#line 201 "bas.y" /* yacc.c:1646  */
     {Node* collon = create_node(yylineno, collon_node, ",", NULL);
-                                (yyval.no) = create_node(yylineno, assignment_node, "CONSTANT, assignment", (yyvsp[-2].str), collon, (yyvsp[0].no), NULL);}
-#line 1602 "y.tab.c" /* yacc.c:1646  */
+                                (yyval.no) = create_node(yylineno, assignment_node, "CONSTANT, assignment", (yyvsp[-2].str), collon, (yyvsp[0].no), NULL);
+                                isTac = 0;}
+#line 1612 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 19:
-#line 194 "bas.y" /* yacc.c:1646  */
+#line 204 "bas.y" /* yacc.c:1646  */
     {Node* sum = create_node(yylineno, sum_node, "+", NULL);
-                            (yyval.no) = create_node(yylineno, assignment_node, "ID + assignment", (yyvsp[-2].str), sum, (yyvsp[0].no), NULL);
-                            res = (yyvsp[-2].str);}
-#line 1610 "y.tab.c" /* yacc.c:1646  */
+                            tac_arg1 = (char*)(yyvsp[-2].str);
+                            tac_op = "+";
+                            isTac = 1;
+                            (yyval.no) = create_node(yylineno, assignment_node, "ID + assignment", (yyvsp[-2].str), sum, (yyvsp[0].no), NULL);}
+#line 1622 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 20:
-#line 198 "bas.y" /* yacc.c:1646  */
+#line 210 "bas.y" /* yacc.c:1646  */
     {Node* sub = create_node(yylineno, sub_node, "-", NULL);
+                            tac_arg1 = (char*)(yyvsp[-2].str);
+                            tac_op = "-";
+                            isTac = 1;
                             (yyval.no) = create_node(yylineno, assignment_node, "ID - assignment", (yyvsp[-2].str), sub, (yyvsp[0].no), NULL);}
-#line 1617 "y.tab.c" /* yacc.c:1646  */
+#line 1632 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 21:
-#line 201 "bas.y" /* yacc.c:1646  */
+#line 216 "bas.y" /* yacc.c:1646  */
     {Node* mult = create_node(yylineno, mult_node, "*", NULL);
+                            tac_arg1 = (char*)(yyvsp[-2].str);
+                            tac_op = "*";
+                            isTac = 1;
                             (yyval.no) = create_node(yylineno, assignment_node, "ID * assignment", (yyvsp[-2].str), mult, (yyvsp[0].no), NULL);}
-#line 1624 "y.tab.c" /* yacc.c:1646  */
+#line 1642 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 22:
-#line 204 "bas.y" /* yacc.c:1646  */
+#line 222 "bas.y" /* yacc.c:1646  */
     {Node* mult = create_node(yylineno, div_node, "/", NULL);
+                            tac_arg1 = (char*)(yyvsp[-2].str);
+                            tac_op = "/";
+                            isTac = 1;
                             (yyval.no) = create_node(yylineno, assignment_node, "ID / assignment", (yyvsp[-2].str), div, (yyvsp[0].no), NULL);}
-#line 1631 "y.tab.c" /* yacc.c:1646  */
+#line 1652 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 23:
-#line 207 "bas.y" /* yacc.c:1646  */
+#line 228 "bas.y" /* yacc.c:1646  */
     {Node* mod = create_node(yylineno, mod_node, "%", NULL);
+                            tac_arg1 = (char*)(yyvsp[-2].str);
+                            tac_op = "%";
+                            isTac = 1;
                             (yyval.no) = create_node(yylineno, assignment_node, "ID % assignment", (yyvsp[-2].str), mod, (yyvsp[0].no), NULL);}
-#line 1638 "y.tab.c" /* yacc.c:1646  */
+#line 1662 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 24:
-#line 210 "bas.y" /* yacc.c:1646  */
+#line 234 "bas.y" /* yacc.c:1646  */
     {Node* sum = create_node(yylineno, sum_node, "+", NULL);
-                                    (yyval.no) = create_node(yylineno, assignment_node, (char *)(yyval.no), (yyvsp[-2].str), sum, (yyvsp[0].no), NULL);
-                                    struct tac* new_tac = create_inst_tac(res, (yyvsp[-2].str), "+", (yyvsp[0].no)->lexeme);
-                                    res = (yyvsp[-2].str);}
-#line 1647 "y.tab.c" /* yacc.c:1646  */
+                                    tac_arg1 = (char*)(yyvsp[-2].str);
+                                    tac_op = "+";
+                                    isTac = 1;
+                                    (yyval.no) = create_node(yylineno, assignment_node, "teste", (yyvsp[-2].str), sum, (yyvsp[0].no), NULL);}
+#line 1672 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 25:
-#line 214 "bas.y" /* yacc.c:1646  */
+#line 239 "bas.y" /* yacc.c:1646  */
     {Node* sub = create_node(yylineno, sub_node, "-", NULL);
+                                    tac_arg1 = (char*)(yyvsp[-2].str);
+                                    tac_op = "-";
+                                    isTac = 1;
                                     (yyval.no) = create_node(yylineno, assignment_node, "CONSTANT - assignment", (yyvsp[-2].str), sub, (yyvsp[0].no)), NULL;}
-#line 1654 "y.tab.c" /* yacc.c:1646  */
+#line 1682 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 26:
-#line 216 "bas.y" /* yacc.c:1646  */
+#line 244 "bas.y" /* yacc.c:1646  */
     {Node* mult = create_node(yylineno, mult_node, "*", NULL);
+                                    tac_arg1 = (char*)(yyvsp[-2].str);
+                                    tac_op = "*";
+                                    isTac = 1;
                                     (yyval.no) = create_node(yylineno, assignment_node, "CONSTANT * assignment", (yyvsp[-2].str), mult, (yyvsp[0].no), NULL);}
-#line 1661 "y.tab.c" /* yacc.c:1646  */
+#line 1692 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 27:
-#line 218 "bas.y" /* yacc.c:1646  */
+#line 249 "bas.y" /* yacc.c:1646  */
     {Node* div = create_node(yylineno, div_node, "/", NULL);
+                                    tac_arg1 = (char*)(yyvsp[-2].str);
+                                    tac_op = "/";
+                                    isTac = 1;
                                     (yyval.no) = create_node(yylineno, assignment_node, "CONSTANT / assignment", (yyvsp[-2].str), div, (yyvsp[0].no), NULL);}
-#line 1668 "y.tab.c" /* yacc.c:1646  */
+#line 1702 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 28:
-#line 220 "bas.y" /* yacc.c:1646  */
+#line 254 "bas.y" /* yacc.c:1646  */
     {Node* mod = create_node(yylineno, mod_node, "%", NULL);
-                                    (yyval.no) = create_node(yylineno, assignment_node, "CONSTANT % assignment", (yyvsp[-2].str), mod, (yyvsp[0].no), NULL);}
-#line 1675 "y.tab.c" /* yacc.c:1646  */
+                                    tac_arg1 = (char*)(yyvsp[-2].str);
+                                    tac_op = "%";
+                                    isTac = 1;
+                                    (yyval.no) = create_node(yylineno, assignment_node, "CONSTANT % assignment", (yyvsp[-2].str), mod, (yyvsp[0].no), NULL);
+                                    }
+#line 1713 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 29:
-#line 223 "bas.y" /* yacc.c:1646  */
-    {(yyval.no) = create_node(yylineno, assignment_node, "ID INCR", (yyvsp[-1].str), (yyvsp[0].str), NULL);}
-#line 1681 "y.tab.c" /* yacc.c:1646  */
+#line 261 "bas.y" /* yacc.c:1646  */
+    {(yyval.no) = create_node(yylineno, assignment_node, "ID INCR", (yyvsp[-1].str), (yyvsp[0].str), NULL);
+                struct tac* new_tac = create_inst_tac((char *)(yyvsp[-1].str), (char *)(yyvsp[-1].str), "+", "1");
+                isTac = 0;}
+#line 1721 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 30:
-#line 225 "bas.y" /* yacc.c:1646  */
-    {(yyval.no) = create_node(yylineno, assignment_node, "ID DECR", (yyvsp[-1].str), (yyvsp[0].str), NULL);}
-#line 1687 "y.tab.c" /* yacc.c:1646  */
+#line 265 "bas.y" /* yacc.c:1646  */
+    {(yyval.no) = create_node(yylineno, assignment_node, "ID DECR", (yyvsp[-1].str), (yyvsp[0].str), NULL);
+                struct tac* new_tac = create_inst_tac((char *)(yyvsp[-1].str), (char *)(yyvsp[-1].str), "-", "1");
+                isTac = 0;}
+#line 1729 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 31:
-#line 227 "bas.y" /* yacc.c:1646  */
+#line 269 "bas.y" /* yacc.c:1646  */
     {Node* open_round_brac = create_node(yylineno, open_round_brac_node, "(", NULL);
                             Node* close_round_brac = create_node(yylineno, close_round_brac_node, ")", NULL);
-                            (yyval.no) = create_node(yylineno, assignment_node, "( assignment )", open_round_brac, (yyvsp[-1].no), close_round_brac, NULL);}
-#line 1695 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 32:
-#line 230 "bas.y" /* yacc.c:1646  */
-    {Node* sub = create_node(yylineno, sub_node, "-", NULL);
-                                Node* open_round_brac = create_node(yylineno, open_round_brac_node, "(", NULL);
-                                Node* close_round_brac = create_node(yylineno, close_round_brac_node, ")", NULL);
-                                (yyval.no) = create_node(yylineno, assignment_node, "( assignment )", sub, open_round_brac, (yyvsp[-1].no), close_round_brac, NULL);}
-#line 1704 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 33:
-#line 234 "bas.y" /* yacc.c:1646  */
-    {Node* sub = create_node(yylineno, sub_node, "-", NULL);
-                    (yyval.no) = create_node(yylineno, assignment_node, "- CONSTANT", sub, (yyvsp[0].str), NULL);}
-#line 1711 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 34:
-#line 236 "bas.y" /* yacc.c:1646  */
-    {Node* sub = (Node*)malloc(sizeof(Node));
-                    (yyval.no) = create_node(yylineno, assignment_node, "- ID", sub, (yyvsp[0].str), NULL);}
-#line 1718 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 35:
-#line 238 "bas.y" /* yacc.c:1646  */
-    {(yyval.no) = create_node(yylineno, assignment_node, (char *)(yyvsp[0].str), (yyvsp[0].str), NULL);}
-#line 1724 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 36:
-#line 239 "bas.y" /* yacc.c:1646  */
-    {(yyval.no) = create_node(yylineno, assignment_node, (char *)(yyvsp[0].str), (yyvsp[0].str), NULL);}
-#line 1730 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 37:
-#line 244 "bas.y" /* yacc.c:1646  */
-    {Node* open_sqr_brac = create_node(yylineno, open_sqr_brac_node, "[", NULL);
-                            Node* close_sqr_brac = create_node(yylineno, close_sqr_brac_node, "]", NULL);
-                            (yyval.no) = create_node(yylineno, array_usage_node, "ID [ assignment ]", (yyvsp[-3].str), open_sqr_brac, (yyvsp[-1].no), close_sqr_brac, NULL);}
+                            (yyval.no) = create_node(yylineno, assignment_node, "( assignment )", open_round_brac, (yyvsp[-1].no), close_round_brac, NULL);
+                            isTac = 0;}
 #line 1738 "y.tab.c" /* yacc.c:1646  */
     break;
 
+  case 32:
+#line 273 "bas.y" /* yacc.c:1646  */
+    {Node* sub = create_node(yylineno, sub_node, "-", NULL);
+                                Node* open_round_brac = create_node(yylineno, open_round_brac_node, "(", NULL);
+                                Node* close_round_brac = create_node(yylineno, close_round_brac_node, ")", NULL);
+                                (yyval.no) = create_node(yylineno, assignment_node, "( assignment )", sub, open_round_brac, (yyvsp[-1].no), close_round_brac, NULL);
+                                isTac = 0;}
+#line 1748 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 33:
+#line 278 "bas.y" /* yacc.c:1646  */
+    {Node* sub = create_node(yylineno, sub_node, "-", NULL);
+                    (yyval.no) = create_node(yylineno, assignment_node, "- CONSTANT", sub, (yyvsp[0].str), NULL);
+                    isTac = 0;}
+#line 1756 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 34:
+#line 281 "bas.y" /* yacc.c:1646  */
+    {Node* sub = (Node*)malloc(sizeof(Node));
+                    (yyval.no) = create_node(yylineno, assignment_node, "- ID", sub, (yyvsp[0].str), NULL);
+                    isTac = 0;}
+#line 1764 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 35:
+#line 284 "bas.y" /* yacc.c:1646  */
+    {(yyval.no) = create_node(yylineno, assignment_node, (char *)(yyvsp[0].str), (yyvsp[0].str), NULL);
+                tac_arg2 = (char *)(yyvsp[0].str);
+                isTac = 0;}
+#line 1772 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 36:
+#line 287 "bas.y" /* yacc.c:1646  */
+    {(yyval.no) = create_node(yylineno, assignment_node, (char *)(yyvsp[0].str), (yyvsp[0].str), NULL);
+                tac_arg2 = (char *)(yyvsp[0].str);
+                isTac = 0;}
+#line 1780 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 37:
+#line 294 "bas.y" /* yacc.c:1646  */
+    {Node* open_sqr_brac = create_node(yylineno, open_sqr_brac_node, "[", NULL);
+                            Node* close_sqr_brac = create_node(yylineno, close_sqr_brac_node, "]", NULL);
+                            (yyval.no) = create_node(yylineno, array_usage_node, "ID [ assignment ]", (yyvsp[-3].str), open_sqr_brac, (yyvsp[-1].no), close_sqr_brac, NULL);}
+#line 1788 "y.tab.c" /* yacc.c:1646  */
+    break;
+
   case 38:
-#line 250 "bas.y" /* yacc.c:1646  */
+#line 300 "bas.y" /* yacc.c:1646  */
     {Node* open_sqr_brac = create_node(yylineno, open_sqr_brac_node, "[", NULL);
                             Node* close_sqr_brac = create_node(yylineno, close_sqr_brac_node, "]", NULL);
                             (yyval.no) = create_node(yylineno, array_usage_node, "ID [ assignment ]", (yyvsp[-3].str), open_sqr_brac, (yyvsp[-1].no), close_sqr_brac, NULL);
                             create_table_entry((yyvsp[-3].str));}
-#line 1747 "y.tab.c" /* yacc.c:1646  */
+#line 1797 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 39:
-#line 258 "bas.y" /* yacc.c:1646  */
+#line 308 "bas.y" /* yacc.c:1646  */
     {(yyval.str) = create_node(yylineno, type_node, "FLOAT", (yyvsp[0].str), NULL);
                 tipo_global = FLOAT_TYPE;}
-#line 1754 "y.tab.c" /* yacc.c:1646  */
+#line 1804 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 40:
-#line 260 "bas.y" /* yacc.c:1646  */
+#line 310 "bas.y" /* yacc.c:1646  */
     {(yyval.str) = create_node(yylineno, type_node, "INT", (yyvsp[0].str), NULL);
                 tipo_global = INT_TYPE;}
-#line 1761 "y.tab.c" /* yacc.c:1646  */
+#line 1811 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 41:
-#line 262 "bas.y" /* yacc.c:1646  */
+#line 312 "bas.y" /* yacc.c:1646  */
     {(yyval.str) = create_node(yylineno, type_node, "CHAR", (yyvsp[0].str), NULL);
                 tipo_global = CHAR_TYPE;}
-#line 1768 "y.tab.c" /* yacc.c:1646  */
+#line 1818 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 42:
-#line 264 "bas.y" /* yacc.c:1646  */
+#line 314 "bas.y" /* yacc.c:1646  */
     {(yyval.str) = create_node(yylineno, type_node, "VOID", (yyvsp[0].str), NULL);
                 tipo_global = 0;}
-#line 1775 "y.tab.c" /* yacc.c:1646  */
+#line 1825 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 43:
-#line 266 "bas.y" /* yacc.c:1646  */
+#line 316 "bas.y" /* yacc.c:1646  */
     {(yyval.str) = create_node(yylineno, type_node, "DOUBLE", (yyvsp[0].str), NULL);
                 tipo_global = DOUBLE_TYPE;}
-#line 1782 "y.tab.c" /* yacc.c:1646  */
+#line 1832 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 44:
-#line 272 "bas.y" /* yacc.c:1646  */
+#line 322 "bas.y" /* yacc.c:1646  */
     {Node* open_round_brac = create_node(yylineno, open_round_brac_node, "(", NULL);
                                 Node* close_round_brac = create_node(yylineno, close_round_brac_node, ")", NULL);
                                 (yyval.no) = create_node(yylineno, function_call_node, "ID ( )", (yyvsp[-2].str), open_round_brac, close_round_brac, NULL);}
-#line 1790 "y.tab.c" /* yacc.c:1646  */
+#line 1840 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 45:
-#line 276 "bas.y" /* yacc.c:1646  */
+#line 326 "bas.y" /* yacc.c:1646  */
     {Node* open_round_brac = create_node(yylineno, open_round_brac_node, "(", NULL);
                                 Node* close_round_brac = create_node(yylineno, close_round_brac_node, ")", NULL);
                                 (yyval.no) = create_node(yylineno, function_call_node, "ID ( assignment )", (yyvsp[-3].str), open_round_brac, (yyvsp[-1].no), close_round_brac, NULL);}
-#line 1798 "y.tab.c" /* yacc.c:1646  */
+#line 1848 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 46:
-#line 283 "bas.y" /* yacc.c:1646  */
+#line 333 "bas.y" /* yacc.c:1646  */
     {Node* open_round_brac = create_node(yylineno, open_round_brac_node, "(", NULL);
                                                     Node* close_round_brac = create_node(yylineno, close_round_brac_node, ")", NULL);
                                                     Node* id = create_node(yylineno, id_node, "ID", NULL);
                                                     (yyval.no) = create_node(yylineno, function_node, "type ID ( arg_list_opt ) compound_stmt", 
                                                     (yyvsp[-5].str), id, open_round_brac, (yyvsp[-2].no), close_round_brac, (yyvsp[0].no), NULL);}
-#line 1808 "y.tab.c" /* yacc.c:1646  */
+#line 1858 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 47:
-#line 291 "bas.y" /* yacc.c:1646  */
+#line 341 "bas.y" /* yacc.c:1646  */
     {(yyval.no) = create_node(yylineno, arg_list_opt_node, "arg_list", (yyvsp[0].no), NULL);}
-#line 1814 "y.tab.c" /* yacc.c:1646  */
+#line 1864 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 48:
-#line 292 "bas.y" /* yacc.c:1646  */
+#line 342 "bas.y" /* yacc.c:1646  */
     {(yyval.no) = create_node(yylineno, arg_list_opt_node, "arg_list_opt --> EMPTY", NULL);}
-#line 1820 "y.tab.c" /* yacc.c:1646  */
+#line 1870 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 49:
-#line 296 "bas.y" /* yacc.c:1646  */
+#line 346 "bas.y" /* yacc.c:1646  */
     {Node* collon = create_node(yylineno, collon_node, ",", NULL);
                         (yyval.no) = create_node(yylineno, arg_list_node, "arg_list , arg", (yyvsp[-2].no), collon, (yyvsp[0].no), NULL);}
-#line 1827 "y.tab.c" /* yacc.c:1646  */
+#line 1877 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 50:
-#line 299 "bas.y" /* yacc.c:1646  */
+#line 349 "bas.y" /* yacc.c:1646  */
     {(yyval.no) = create_node(yylineno, arg_list_node, "arg", (yyvsp[0].no), NULL);}
-#line 1833 "y.tab.c" /* yacc.c:1646  */
+#line 1883 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 51:
-#line 303 "bas.y" /* yacc.c:1646  */
+#line 353 "bas.y" /* yacc.c:1646  */
     {Node* id = create_node(yylineno, id_node, "ID", NULL);
                 (yyval.no) = create_node(yylineno, arg_node, "type ID", (yyvsp[-1].str), id, NULL);
                 create_table_entry((yyvsp[0].str));}
-#line 1841 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 52:
-#line 309 "bas.y" /* yacc.c:1646  */
-    {Node* open_curly_brac = create_node(yylineno, open_curly_brac_node, "{", NULL);
-                        Node* close_curly_brac = create_node(yylineno, close_curly_brac_node, "}", NULL);
-                        (yyval.no) = create_node(yylineno, compound_stmt_node, "{ stmt_list }", open_curly_brac, (yyvsp[-1].no), close_curly_brac, NULL);}
-#line 1849 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 53:
-#line 315 "bas.y" /* yacc.c:1646  */
-    {(yyval.no) = create_node(yylineno, stmt_list_node, "stmt_list stmt", (yyvsp[-1].no), (yyvsp[0].no), NULL);}
-#line 1855 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 54:
-#line 316 "bas.y" /* yacc.c:1646  */
-    {(yyval.no) = create_node(yylineno, stmt_list_node, "stmt_list --> EMPTY", NULL);}
-#line 1861 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 55:
-#line 320 "bas.y" /* yacc.c:1646  */
-    {(yyval.no) = create_node(yylineno, stmt_node, "while_stmt", (yyvsp[0].no), NULL);}
-#line 1867 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 56:
-#line 321 "bas.y" /* yacc.c:1646  */
-    {(yyval.no) = create_node(yylineno, stmt_node, "declaration", (yyvsp[0].no), NULL);}
-#line 1873 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 57:
-#line 322 "bas.y" /* yacc.c:1646  */
-    {(yyval.no) = create_node(yylineno, stmt_node, "for_stmt", (yyvsp[0].no), NULL);}
-#line 1879 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 58:
-#line 323 "bas.y" /* yacc.c:1646  */
-    {(yyval.no) = create_node(yylineno, stmt_node, "if_stmt", (yyvsp[0].no), NULL);}
-#line 1885 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 59:
-#line 324 "bas.y" /* yacc.c:1646  */
-    {(yyval.no) = create_node(yylineno, stmt_node, "print_func", (yyvsp[0].no), NULL);}
 #line 1891 "y.tab.c" /* yacc.c:1646  */
     break;
 
+  case 52:
+#line 359 "bas.y" /* yacc.c:1646  */
+    {Node* open_curly_brac = create_node(yylineno, open_curly_brac_node, "{", NULL);
+                        Node* close_curly_brac = create_node(yylineno, close_curly_brac_node, "}", NULL);
+                        (yyval.no) = create_node(yylineno, compound_stmt_node, "{ stmt_list }", open_curly_brac, (yyvsp[-1].no), close_curly_brac, NULL);}
+#line 1899 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 53:
+#line 365 "bas.y" /* yacc.c:1646  */
+    {(yyval.no) = create_node(yylineno, stmt_list_node, "stmt_list stmt", (yyvsp[-1].no), (yyvsp[0].no), NULL);}
+#line 1905 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 54:
+#line 366 "bas.y" /* yacc.c:1646  */
+    {(yyval.no) = create_node(yylineno, stmt_list_node, "stmt_list --> EMPTY", NULL);}
+#line 1911 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 55:
+#line 370 "bas.y" /* yacc.c:1646  */
+    {(yyval.no) = create_node(yylineno, stmt_node, "while_stmt", (yyvsp[0].no), NULL);}
+#line 1917 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 56:
+#line 371 "bas.y" /* yacc.c:1646  */
+    {(yyval.no) = create_node(yylineno, stmt_node, "declaration", (yyvsp[0].no), NULL);}
+#line 1923 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 57:
+#line 372 "bas.y" /* yacc.c:1646  */
+    {(yyval.no) = create_node(yylineno, stmt_node, "for_stmt", (yyvsp[0].no), NULL);}
+#line 1929 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 58:
+#line 373 "bas.y" /* yacc.c:1646  */
+    {(yyval.no) = create_node(yylineno, stmt_node, "if_stmt", (yyvsp[0].no), NULL);}
+#line 1935 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 59:
+#line 374 "bas.y" /* yacc.c:1646  */
+    {(yyval.no) = create_node(yylineno, stmt_node, "print_func", (yyvsp[0].no), NULL);}
+#line 1941 "y.tab.c" /* yacc.c:1646  */
+    break;
+
   case 60:
-#line 325 "bas.y" /* yacc.c:1646  */
+#line 375 "bas.y" /* yacc.c:1646  */
     {(yyval.no) = create_node(yylineno, stmt_node, "jump_statement", (yyvsp[0].no), NULL);}
-#line 1897 "y.tab.c" /* yacc.c:1646  */
+#line 1947 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 61:
-#line 326 "bas.y" /* yacc.c:1646  */
+#line 376 "bas.y" /* yacc.c:1646  */
     {Node* semicollon = create_node(yylineno, semicollon_node, ";", NULL);
                         (yyval.no) = create_node(yylineno, stmt_node, ";", semicollon, NULL);}
-#line 1904 "y.tab.c" /* yacc.c:1646  */
+#line 1954 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 62:
-#line 333 "bas.y" /* yacc.c:1646  */
+#line 383 "bas.y" /* yacc.c:1646  */
     {Node* open_round_brac = create_node(yylineno, open_round_brac_node, "(", NULL);
                                         Node* close_round_brac = create_node(yylineno, close_round_brac_node, "(", NULL);
                                         (yyval.no) = create_node(yylineno, while_stmt_node, "WHILE ( expr ) compound_stmt",
                                         (yyvsp[-4].no), open_round_brac, (yyvsp[-2].no), close_round_brac, (yyvsp[0].no), NULL);}
-#line 1913 "y.tab.c" /* yacc.c:1646  */
+#line 1963 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 63:
-#line 341 "bas.y" /* yacc.c:1646  */
+#line 391 "bas.y" /* yacc.c:1646  */
     {Node* semicollon1 = create_node(yylineno, semicollon_node, ";", NULL);
                                                         Node* semicollon2 = create_node(yylineno, semicollon_node, ";", NULL);
                                                         Node* open_round_brac = create_node(yylineno, open_round_brac_node, "(", NULL);
                                                         Node* close_round_brac = create_node(yylineno, close_round_brac_node, ")", NULL);
                                                         (yyval.no) = create_node(yylineno, for_stmt_node, "FOR ( expr ; expr ; expr ) compound_stmt",
                                                         (yyvsp[-8].no), open_round_brac, (yyvsp[-6].no), semicollon1, (yyvsp[-4].no), semicollon2, (yyvsp[-2].no), close_round_brac, (yyvsp[0].no), NULL);}
-#line 1924 "y.tab.c" /* yacc.c:1646  */
+#line 1974 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 64:
-#line 348 "bas.y" /* yacc.c:1646  */
+#line 398 "bas.y" /* yacc.c:1646  */
     {Node* open_round_brac = create_node(yylineno, open_round_brac_node, "(", NULL);
                                         Node* close_round_brac = create_node(yylineno, close_round_brac_node, ")", NULL);
                                         (yyval.no) = create_node(yylineno, for_stmt_node, "FOR ( expr ) compound_stmt", 
                                         (yyvsp[-4].no), open_round_brac, (yyvsp[-2].no), close_round_brac, (yyvsp[0].no), NULL);}
-#line 1933 "y.tab.c" /* yacc.c:1646  */
+#line 1983 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 65:
-#line 356 "bas.y" /* yacc.c:1646  */
+#line 406 "bas.y" /* yacc.c:1646  */
     {Node* open_round_brac = create_node(yylineno, open_round_brac_node, "(", NULL);
                                                     Node* close_round_brac = create_node(yylineno, close_round_brac_node, ")", NULL);
                                                     (yyval.no) = create_node(yylineno, if_stmt_node, "IF ( expr ) compound_stmt else_elif_stmt", 
                                                     (yyvsp[-5].no), open_round_brac, (yyvsp[-3].no), close_round_brac, (yyvsp[-1].no), (yyvsp[0].no), NULL);}
-#line 1942 "y.tab.c" /* yacc.c:1646  */
+#line 1992 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 66:
-#line 363 "bas.y" /* yacc.c:1646  */
+#line 413 "bas.y" /* yacc.c:1646  */
     {Node* open_round_brac = create_node(yylineno, open_round_brac_node, "(", NULL);
                                                         Node* close_round_brac = create_node(yylineno, close_round_brac_node, ")", NULL);
                                                         (yyval.no) = create_node(yylineno, else_elif_stmt_node, "ELIF '(' expr ')' compound_stmt else_elif_stmt",
                                                         (yyvsp[-5].no), open_round_brac, (yyvsp[-3].no), close_round_brac, (yyvsp[-1].no), (yyvsp[0].no), NULL);}
-#line 1951 "y.tab.c" /* yacc.c:1646  */
+#line 2001 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 67:
-#line 368 "bas.y" /* yacc.c:1646  */
+#line 418 "bas.y" /* yacc.c:1646  */
     {(yyval.no) = create_node(yylineno, else_elif_stmt_node, "else_stmt", (yyvsp[0].no), NULL);}
-#line 1957 "y.tab.c" /* yacc.c:1646  */
+#line 2007 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 68:
-#line 369 "bas.y" /* yacc.c:1646  */
+#line 419 "bas.y" /* yacc.c:1646  */
     {(yyval.no) = create_node(yylineno, else_elif_stmt_node, "else_stmt --> EMPTY", NULL);}
-#line 1963 "y.tab.c" /* yacc.c:1646  */
+#line 2013 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 69:
-#line 373 "bas.y" /* yacc.c:1646  */
+#line 423 "bas.y" /* yacc.c:1646  */
     {(yyval.no) = create_node(yylineno, else_stmt_node, "ELSE compound_stmt", (yyvsp[-1].no), (yyvsp[0].no), NULL);}
-#line 1969 "y.tab.c" /* yacc.c:1646  */
+#line 2019 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 70:
-#line 378 "bas.y" /* yacc.c:1646  */
+#line 428 "bas.y" /* yacc.c:1646  */
     {(yyval.no) = create_node(yylineno, expr_node, "expr relop expr", (yyvsp[-2].no), (yyvsp[-1].str), (yyvsp[0].no), NULL);}
-#line 1975 "y.tab.c" /* yacc.c:1646  */
+#line 2025 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 71:
-#line 379 "bas.y" /* yacc.c:1646  */
+#line 429 "bas.y" /* yacc.c:1646  */
     {(yyval.no) = create_node(yylineno, expr_node, "assignment", (yyvsp[0].no), NULL);}
-#line 1981 "y.tab.c" /* yacc.c:1646  */
+#line 2031 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 72:
-#line 380 "bas.y" /* yacc.c:1646  */
+#line 430 "bas.y" /* yacc.c:1646  */
     {(yyval.no) = create_node(yylineno, expr_node, "array_usage", (yyvsp[0].no), NULL);}
-#line 1987 "y.tab.c" /* yacc.c:1646  */
+#line 2037 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 73:
-#line 384 "bas.y" /* yacc.c:1646  */
+#line 434 "bas.y" /* yacc.c:1646  */
     {(yyval.str) = create_node(yylineno, le_node, "=", NULL);}
-#line 1993 "y.tab.c" /* yacc.c:1646  */
+#line 2043 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 74:
-#line 385 "bas.y" /* yacc.c:1646  */
+#line 435 "bas.y" /* yacc.c:1646  */
     {(yyval.str) = create_node(yylineno, ge_node, ">=", NULL);}
-#line 1999 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 75:
-#line 386 "bas.y" /* yacc.c:1646  */
-    {(yyval.str) = create_node(yylineno, ne_node, "!=", NULL);}
-#line 2005 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 76:
-#line 387 "bas.y" /* yacc.c:1646  */
-    {(yyval.str) = create_node(yylineno, eq_node, "==", NULL);}
-#line 2011 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 77:
-#line 388 "bas.y" /* yacc.c:1646  */
-    {(yyval.str) = create_node(yylineno, gt_node, ">", NULL);}
-#line 2017 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 78:
-#line 389 "bas.y" /* yacc.c:1646  */
-    {(yyval.str) = create_node(yylineno, lt_node, "<", NULL);}
-#line 2023 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 79:
-#line 390 "bas.y" /* yacc.c:1646  */
-    {(yyval.str) = create_node(yylineno, and_node, "&&", NULL);}
-#line 2029 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 80:
-#line 391 "bas.y" /* yacc.c:1646  */
-    {(yyval.str) = create_node(yylineno, or_node, "||", NULL);}
-#line 2035 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 81:
-#line 396 "bas.y" /* yacc.c:1646  */
-    {Node* semicollon = create_node(yylineno, semicollon_node, ";", NULL);
-                    (yyval.no) = create_node(yylineno, jump_statement_node, "CONTINUE ;", (yyvsp[-1].no), semicollon, NULL);}
-#line 2042 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 82:
-#line 399 "bas.y" /* yacc.c:1646  */
-    {Node* semicollon = create_node(yylineno, semicollon_node, ";", NULL);
-                    (yyval.no) = create_node(yylineno, jump_statement_node, "BREAK ;", (yyvsp[-1].no), semicollon, NULL);}
 #line 2049 "y.tab.c" /* yacc.c:1646  */
     break;
 
+  case 75:
+#line 436 "bas.y" /* yacc.c:1646  */
+    {(yyval.str) = create_node(yylineno, ne_node, "!=", NULL);}
+#line 2055 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 76:
+#line 437 "bas.y" /* yacc.c:1646  */
+    {(yyval.str) = create_node(yylineno, eq_node, "==", NULL);}
+#line 2061 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 77:
+#line 438 "bas.y" /* yacc.c:1646  */
+    {(yyval.str) = create_node(yylineno, gt_node, ">", NULL);}
+#line 2067 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 78:
+#line 439 "bas.y" /* yacc.c:1646  */
+    {(yyval.str) = create_node(yylineno, lt_node, "<", NULL);}
+#line 2073 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 79:
+#line 440 "bas.y" /* yacc.c:1646  */
+    {(yyval.str) = create_node(yylineno, and_node, "&&", NULL);}
+#line 2079 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 80:
+#line 441 "bas.y" /* yacc.c:1646  */
+    {(yyval.str) = create_node(yylineno, or_node, "||", NULL);}
+#line 2085 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 81:
+#line 446 "bas.y" /* yacc.c:1646  */
+    {Node* semicollon = create_node(yylineno, semicollon_node, ";", NULL);
+                    (yyval.no) = create_node(yylineno, jump_statement_node, "CONTINUE ;", (yyvsp[-1].no), semicollon, NULL);}
+#line 2092 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 82:
+#line 449 "bas.y" /* yacc.c:1646  */
+    {Node* semicollon = create_node(yylineno, semicollon_node, ";", NULL);
+                    (yyval.no) = create_node(yylineno, jump_statement_node, "BREAK ;", (yyvsp[-1].no), semicollon, NULL);}
+#line 2099 "y.tab.c" /* yacc.c:1646  */
+    break;
+
   case 83:
-#line 402 "bas.y" /* yacc.c:1646  */
+#line 452 "bas.y" /* yacc.c:1646  */
     {Node* semicollon = create_node(yylineno, semicollon_node, ";", NULL);
                     (yyval.no) = create_node(yylineno, jump_statement_node, "RETURN ;", (yyvsp[-1].no), semicollon, NULL);}
-#line 2056 "y.tab.c" /* yacc.c:1646  */
+#line 2106 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 84:
-#line 405 "bas.y" /* yacc.c:1646  */
+#line 455 "bas.y" /* yacc.c:1646  */
     {Node* semicollon = create_node(yylineno, semicollon_node, ";", NULL);
                         (yyval.no) = create_node(yylineno, jump_statement_node, "RETURN expr ;", (yyvsp[-2].no), (yyvsp[-1].no), semicollon, (char *)NULL);}
-#line 2063 "y.tab.c" /* yacc.c:1646  */
+#line 2113 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 85:
-#line 411 "bas.y" /* yacc.c:1646  */
+#line 461 "bas.y" /* yacc.c:1646  */
     {Node* open_round_brac = create_node(yylineno, open_round_brac_node, "(", NULL);
     							Node* close_round_brac = create_node(yylineno, close_round_brac_node, ")", NULL);
     							Node* semicollon = create_node(yylineno, semicollon_node, ";", NULL);
     							(yyval.no) = create_node(yylineno, print_func_node, "PRINTF ( expr ) ;", (yyvsp[-4].no), open_round_brac, (yyvsp[-2].no), close_round_brac, semicollon, NULL);}
-#line 2072 "y.tab.c" /* yacc.c:1646  */
+#line 2122 "y.tab.c" /* yacc.c:1646  */
     break;
 
 
-#line 2076 "y.tab.c" /* yacc.c:1646  */
+#line 2126 "y.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -2300,5 +2350,5 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 416 "bas.y" /* yacc.c:1906  */
+#line 466 "bas.y" /* yacc.c:1906  */
 
