@@ -108,7 +108,7 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 87 "bas.y" /* yacc.c:1909  */
+#line 89 "bas.y" /* yacc.c:1909  */
 
     struct node* no;
     char *str; 

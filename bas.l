@@ -66,7 +66,6 @@ L?\"(\\.|[^\\"\n])*\"		{count(); yylval.str = strdup(yytext); return(CONSTANT);}
 {D}+                   		{count(); yylval.str = strdup(yytext); return(CONSTANT);} 	/*integer*/
 {D}*"."{D}+{E}?				{count(); yylval.str = strdup(yytext); return(CONSTANT);} 	/*float*/
 {D}+"."{D}*{E}?				{count(); yylval.str = strdup(yytext); return(CONSTANT);} 	/*float*/
-															/*booleano*/ 
 
 {L}({L}|{D})* 				{count(); yylval.str = strdup(yytext); return(ID);} /*identififier (e.g., foo, a, myVar, myFunc)*/ 
 

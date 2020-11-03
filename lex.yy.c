@@ -1045,29 +1045,28 @@ YY_RULE_SETUP
 #line 68 "bas.l"
 {count(); yylval.str = strdup(yytext); return(CONSTANT);} 	/*float*/
 	YY_BREAK
-/*booleano*/ 
 case 48:
 YY_RULE_SETUP
-#line 71 "bas.l"
+#line 70 "bas.l"
 {count(); yylval.str = strdup(yytext); return(ID);} /*identififier (e.g., foo, a, myVar, myFunc)*/ 
 	YY_BREAK
 case 49:
 /* rule 49 can match eol */
 YY_RULE_SETUP
-#line 73 "bas.l"
+#line 72 "bas.l"
 {count();}
 	YY_BREAK
 case 50:
 YY_RULE_SETUP
-#line 74 "bas.l"
+#line 73 "bas.l"
 
 	YY_BREAK
 case 51:
 YY_RULE_SETUP
-#line 76 "bas.l"
+#line 75 "bas.l"
 ECHO;
 	YY_BREAK
-#line 1071 "lex.yy.c"
+#line 1070 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -2072,7 +2071,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 76 "bas.l"
+#line 75 "bas.l"
 
 
 int yywrap(void)        /* called at end of input */

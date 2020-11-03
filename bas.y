@@ -33,6 +33,8 @@
     int vars_size = 0;
     int tipo_global = 0;
 
+    char* res = "teste";
+
     
     void create_table_entry(char* lexeme){
         if(lookup(symbol_table, lexeme)){
@@ -40,7 +42,7 @@
             return;
         }else{
             entry_t* new_entry = (entry_t*)malloc(sizeof(entry_t));
-            printf("\n>>>> New symbol on table: %s, type: %d\n", lexeme, tipo_global);
+            printf("\n>>>> New symbol on table: %s, type: %d", lexeme, tipo_global);
             new_entry->name = lexeme;
             switch(tipo_global){
                 case FLOAT_TYPE: 
@@ -90,7 +92,7 @@
 };
 
 %token <no> WHILE FOR IF ELSE ELIF BREAK CONTINUE RETURN PRINTF
-%token <str> FLOAT INT CHAR VOID DOUBLE ID CONSTANT INCR DECR GE LE EQ NE LT GT AND OR NOT /*alterar constant mais tarde*/
+%token <str> FLOAT INT CHAR VOID DOUBLE ID CONSTANT INCR DECR GE LE EQ NE LT GT AND OR NOT
                 
 %type<no> atree
 %type<no> translation_unit       
@@ -165,10 +167,13 @@ declaration_assignment
     : ID '=' assignment         {Node* eq = create_node(yylineno, eq_node, "=", NULL);
                                 Node* id = create_node(yylineno, id_node, "ID", NULL);
                                 $$ = create_node(yylineno, assignment_node, "ID = assignment", id, eq, $3, NULL);
-                                create_table_entry($1);}
+                                create_table_entry($1);
+                                res = $1;
+                                printf("\nres '%s'\n", res);}
     | ID '=' function_call      {Node* eq = create_node(yylineno, eq_node, "=", NULL, NULL);
                                 $$ = create_node(yylineno, assignment_node, "ID = function_call", $1, eq, $3, NULL);
-                                create_table_entry($1);}
+                                create_table_entry($1);
+                                res = $1;}
     | ID                        {$$ = create_node(yylineno, assignment_node, "ID", $1, NULL);
                                 create_table_entry($1);}
     ;                             
@@ -178,7 +183,8 @@ declaration_assignment
 assignment
     : ID '=' assignment         {Node* eq = create_node(yylineno, eq_node, "=", NULL);
                                 Node* id = create_node(yylineno, id_node, "ID", NULL);
-                                $$ = create_node(yylineno, assignment_node, "ID = assignment", id, eq, $3, NULL);}
+                                $$ = create_node(yylineno, assignment_node, "ID = assignment", id, eq, $3, NULL);
+                                res = $1;}
     | ID '=' function_call      {Node* eq = create_node(yylineno, eq_node, "=", NULL, NULL);
                                 $$ = create_node(yylineno, assignment_node, "ID = function_call", $1, eq, $3, NULL);}
     | array_usage '=' assignment    {Node* eq = create_node(yylineno, eq_node, "=", NULL);
@@ -187,7 +193,7 @@ assignment
                                 $$ = create_node(yylineno, assignment_node, "CONSTANT, assignment", $1, collon, $3, NULL);}
     | ID '+' assignment     {Node* sum = create_node(yylineno, sum_node, "+", NULL);
                             $$ = create_node(yylineno, assignment_node, "ID + assignment", $1, sum, $3, NULL);
-                            struct tac* new_tac = create_inst_tac($$->lexeme, $1, "+", $3->lexeme);}
+                            res = $1;}
 
     | ID '-' assignment     {Node* sub = create_node(yylineno, sub_node, "-", NULL);
                             $$ = create_node(yylineno, assignment_node, "ID - assignment", $1, sub, $3, NULL);}
@@ -203,7 +209,8 @@ assignment
 
     | CONSTANT '+' assignment       {Node* sum = create_node(yylineno, sum_node, "+", NULL);
                                     $$ = create_node(yylineno, assignment_node, (char *)$$, $1, sum, $3, NULL);
-                                    struct tac* new_tac = create_inst_tac($$->lexeme, $1, "+", $3->lexeme);}
+                                    struct tac* new_tac = create_inst_tac(res, $1, "+", $3->lexeme);
+                                    res = $1;}
     | CONSTANT '-' assignment       {Node* sub = create_node(yylineno, sub_node, "-", NULL);
                                     $$ = create_node(yylineno, assignment_node, "CONSTANT - assignment", $1, sub, $3), NULL;}
     | CONSTANT '*' assignment       {Node* mult = create_node(yylineno, mult_node, "*", NULL);
@@ -229,7 +236,7 @@ assignment
     | '-' ID        {Node* sub = (Node*)malloc(sizeof(Node));
                     $$ = create_node(yylineno, assignment_node, "- ID", sub, $2, NULL);} 
     | CONSTANT  {$$ = create_node(yylineno, assignment_node, (char *)$1, $1, NULL);}
-    | ID        {$$ = create_node(yylineno, assignment_node, "ID", $1, NULL);}
+    | ID        {$$ = create_node(yylineno, assignment_node, (char *)$1, $1, NULL);}
     ;
 
 /* Array usage */
