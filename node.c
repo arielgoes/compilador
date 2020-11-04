@@ -11,7 +11,10 @@ Node* create_node(int nl, Node_type t, char* lexeme, /*Node children*/ ...){
 
     new_node->line_num = nl;
     new_node->type = t;
-    new_node->lexeme = lexeme;
+    //printf("\n>>>>>>>>>lexeme: '%s'\n", lexeme);
+    new_node->lexeme = (char*)malloc(sizeof(char) * 50);
+    strcpy(new_node->lexeme, lexeme);
+    //new_node->lexeme = lexeme;
 
     va_list ap; //list of arguments (from <stdarg.h>)
     va_start(ap, lexeme);
