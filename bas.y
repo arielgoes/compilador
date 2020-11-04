@@ -21,6 +21,7 @@
     extern int yylineno;
     extern Node* syntax_tree;
     extern symbol_t symbol_table;
+    extern struct node_tac** code;
 
     //extern char yytext[];
     extern int column;
@@ -41,11 +42,11 @@
     
     void create_table_entry(char* lexeme){
         if(lookup(symbol_table, lexeme)){
-            printf("'%s' symbol defined multiple times. Type: %d.\n", lexeme, tipo_global);
+            printf("'%s' symbol defined multiple times. Type: '%d'.\n", lexeme, tipo_global);
             return;
         }else{
             entry_t* new_entry = (entry_t*)malloc(sizeof(entry_t));
-            printf("\n>>>> New symbol on table: %s, type: %d", lexeme, tipo_global);
+            printf("\n>>>> New symbol: '%s', type: '%d'", lexeme, tipo_global);
             new_entry->name = lexeme;
             switch(tipo_global){
                 case FLOAT_TYPE: 
@@ -81,7 +82,7 @@
                 printf("\n>>>> insert table: ERROR! Cannot allocate %s into 'symbol_table'!\n", lexeme);
                 exit(0);
             }else{
-                printf("\n>>>> insert table: SUCCESS! value: %s\n", lexeme);
+                /*printf("\n>>>> insert table: SUCCESS! value: %s\n", lexeme);*/
             }
 
         }
@@ -173,6 +174,8 @@ declaration_assignment
                                 create_table_entry($1);
                                 if(isTac == 1){
                                     struct tac* new_tac = create_inst_tac((char *)$1, tac_arg1, tac_op, tac_arg2);
+                                    printf("\n&($$) '%s'\n", $$);
+                                    /*append_inst_tac(code, new_tac);*/
                                     isTac = 0;
                                 }}
     | ID '=' function_call      {Node* eq = create_node(yylineno, eq_node, "=", NULL, NULL);
@@ -205,6 +208,9 @@ assignment
                             tac_arg1 = (char*)$1;
                             tac_op = "+";
                             isTac = 1;
+                            /*char* teste = $1 + "+" + $3->lexeme;*/
+                            printf("\n$1 '%s', +, $3 '%s'\n", $1, $3->lexeme);
+
                             $$ = create_node(yylineno, assignment_node, "ID + assignment", $1, sum, $3, NULL);}
 
     | ID '-' assignment     {Node* sub = create_node(yylineno, sub_node, "-", NULL);

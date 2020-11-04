@@ -44,7 +44,6 @@ void append_inst_tac(struct node_tac** code, struct tac* inst){
 }
 
 
-/* consertar o caso do res */
 struct tac* create_inst_tac(const char* res, const char* arg1,
                             const char* op, const char* arg2){
     
