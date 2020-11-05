@@ -68,13 +68,16 @@ struct tac* create_inst_tac(const char* res, const char* arg1,
     }else{
         strcpy(new_tac->res, res);
     }
-
-    new_tac->arg1 = (char *)malloc(sizeof(char) * (strlen(arg1) + 1)); // len + 1, because of the '\0' 
-    if(new_tac->arg1 == NULL){
-        printf("ERROR: Failed to allocate enough memory!\n");
-        exit(0);
+    if(arg1 == NULL){
+        new_tac->arg1 = NULL;
     }else{
-        strcpy(new_tac->arg1, arg1);
+        new_tac->arg1 = (char *)malloc(sizeof(char) * (strlen(arg1) + 1)); // len + 1, because of the '\0' 
+        if(new_tac->arg1 == NULL){
+            printf("ERROR: Failed to allocate enough memory!\n");
+            exit(0);
+        }else{
+            strcpy(new_tac->arg1, arg1);
+        }
     }
 
     if(arg2 == NULL){
@@ -99,6 +102,8 @@ struct tac* create_inst_tac(const char* res, const char* arg1,
 void print_inst_tac(FILE* out, struct tac* i){
     if(i->arg2 == NULL){
         printf("\n%s := %s\n", i->res, i->arg1);
+    }else if(i->arg1 == NULL){
+        printf("\n%s := %s %s", i->res, i->op, i->arg2);
     }else{
         printf("\n%s := %s %s %s\n", i->res, i->arg1, i->op, i->arg2);
     }

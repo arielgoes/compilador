@@ -38,7 +38,6 @@
     int temp_reg = 1; //t1, t2, t3,...
     struct node_tac** temp_tac; //list of tacs
     
-    
     void create_table_entry(char* lexeme){
         if(lookup(symbol_table, lexeme)){
             printf("'%s' symbol defined multiple times. Type: '%d'.\n", lexeme, tipo_global);
@@ -103,8 +102,7 @@
 %type<no> function               
 %type<no> declaration
 %type<no> declaration_assignment            
-%type<no> assignment             
-%type<no> function_call           
+%type<no> assignment          
 %type<no> array_usage
 %type<no> declaration_array_usage                            
 %type<no> arg_list_opt           
@@ -127,8 +125,9 @@
 %right '='
 %left AND OR
 %left LE GE EQ NE LT GT
-%left '+' '-'
-%left '*' '/'  
+%left '-' '+'
+%left '*' '/' '%' 
+%left '~'
 
 
 %start atree
@@ -156,8 +155,6 @@ declaration
                                         $$ = create_node(yylineno, declaration_node, "type assignment ;", $1, $2, semicollon, NULL);}
     | assignment ';'                    {Node* semicollon = create_node(yylineno, semicollon_node, ";", NULL);
                                         $$ = create_node(yylineno, declaration_node, "assignment ;", $1, semicollon, NULL);}
-    | function_call ';'                 {Node* semicollon = create_node(yylineno, semicollon_node, ";", NULL);
-                                        $$ = create_node(yylineno, declaration_node, "function_call ;", $1, semicollon, NULL);} 
     | array_usage ';'                   {Node* semicollon = create_node(yylineno, semicollon_node, ";", NULL);
                                         $$ = create_node(yylineno, declaration_node, "array_usage ;", $1, semicollon, NULL);}
     | type declaration_array_usage ';'  {Node* semicollon = create_node(yylineno, semicollon_node, ";", NULL);
@@ -171,9 +168,6 @@ declaration_assignment
                                 Node* id = create_node(yylineno, id_node, "ID", NULL);
                                 $$ = create_node(yylineno, assignment_node, "ID = assignment", id, eq, $3, NULL);
                                 create_table_entry($1);}
-    | ID '=' function_call      {Node* eq = create_node(yylineno, eq_node, "=", NULL, NULL);
-                                $$ = create_node(yylineno, assignment_node, "ID = function_call", $1, eq, $3, NULL);
-                                create_table_entry($1);}
     | ID                        {$$ = create_node(yylineno, assignment_node, "ID", $1, NULL);
                                 create_table_entry($1);}
     ;                             
@@ -181,75 +175,64 @@ declaration_assignment
 
 /* Assignment section */
 assignment
-    : ID '=' assignment         {Node* eq = create_node(yylineno, eq_node, "=", NULL);
-                                Node* id = create_node(yylineno, id_node, "ID", NULL);
-                                temp_reg = 1;
-                                struct tac* new_tac = create_inst_tac($1, $3->lexeme, "=", NULL);
-                                print_inst_tac(stdout, new_tac);
-                                /*append_inst_tac(temp_tac, new_tac);*/
-                                /*cat_tac(code, temp_tac);*/
-                                $$ = create_node(yylineno, assignment_node, $1, id, eq, $3, NULL);}
-    | ID '=' function_call      {Node* eq = create_node(yylineno, eq_node, "=", NULL, NULL);
-                                $$ = create_node(yylineno, assignment_node, "ID = function_call", $1, eq, $3, NULL);
-                                }
-    | array_usage '=' assignment    {Node* eq = create_node(yylineno, eq_node, "=", NULL);
-                                    $$ = create_node(yylineno, assignment_node, "array_usage = assignment", $1, eq, $3, NULL);
-                                    }
-    | CONSTANT ',' assignment   {Node* collon = create_node(yylineno, collon_node, ",", NULL);
-                                $$ = create_node(yylineno, assignment_node, "CONSTANT, assignment", $1, collon, $3, NULL);}
-    | ID '+' assignment     {Node* sum = create_node(yylineno, sum_node, "+", NULL);
-                            $$ = create_node(yylineno, assignment_node, "ID + assignment", $1, sum, $3, NULL);}
-
-    | ID '-' assignment     {Node* sub = create_node(yylineno, sub_node, "-", NULL);
-                            $$ = create_node(yylineno, assignment_node, "ID - assignment", $1, sub, $3, NULL);}
-
-    | ID '*' assignment     {Node* mult = create_node(yylineno, mult_node, "*", NULL);
-                            $$ = create_node(yylineno, assignment_node, "ID * assignment", $1, mult, $3, NULL);}
-
-    | ID '/' assignment     {Node* mult = create_node(yylineno, div_node, "/", NULL);
-                            $$ = create_node(yylineno, assignment_node, "ID / assignment", $1, div, $3, NULL);}
-
-    | ID '%' assignment     {Node* mod = create_node(yylineno, mod_node, "%", NULL);
-                            $$ = create_node(yylineno, assignment_node, "ID % assignment", $1, mod, $3, NULL);}
-
-    | CONSTANT '+' assignment       {Node* sum = create_node(yylineno, sum_node, "+", NULL);
-                                    $$ = create_node(yylineno, assignment_node, "teste", $1, sum, $3, NULL);}
-    | CONSTANT '-' assignment       {Node* sub = create_node(yylineno, sub_node, "-", NULL);
-                                    $$ = create_node(yylineno, assignment_node, "CONSTANT - assignment", $1, sub, $3), NULL;}
-    | CONSTANT '*' assignment       {Node* mult = create_node(yylineno, mult_node, "*", NULL);
-                                    $$ = create_node(yylineno, assignment_node, "CONSTANT * assignment", $1, mult, $3, NULL);}
-    | CONSTANT '/' assignment       {Node* div = create_node(yylineno, div_node, "/", NULL);
-                                    $$ = create_node(yylineno, assignment_node, "CONSTANT / assignment", $1, div, $3, NULL);} 
-    | CONSTANT '%' assignment       {Node* mod = create_node(yylineno, mod_node, "%", NULL);
+    : assignment '+' assignment     {Node* sum = create_node(yylineno, sum_node, "+", NULL);
+                                    char res[4];
+                                    sprintf(res, "t%d", temp_reg);
+                                    $$ = create_node(yylineno, assignment_node, res, $1, sum, $3, NULL);
+                                    struct tac* new_tac = create_inst_tac(res, $1->lexeme, "+", $3->lexeme);
+                                    print_inst_tac(stdout, new_tac);
+                                    temp_reg = temp_reg + 1;}
+    | assignment '-' assignment     {Node* sub = create_node(yylineno, sub_node, "-", NULL);
+                                    char res[4];
+                                    sprintf(res, "t%d", temp_reg);
+                                    $$ = create_node(yylineno, assignment_node, res, $1, sub, $3, NULL);
+                                    struct tac* new_tac = create_inst_tac(res, $1->lexeme, "-", $3->lexeme);
+                                    print_inst_tac(stdout, new_tac);
+                                    temp_reg = temp_reg + 1;}
+    | assignment '*' assignment     {Node* mult = create_node(yylineno, mult_node, "*", NULL);
+                                    char res[4];
+                                    sprintf(res, "t%d", temp_reg);
+                                    $$ = create_node(yylineno, assignment_node, res, $1, mult, $3, NULL);
+                                    struct tac* new_tac = create_inst_tac(res, $1->lexeme, "*", $3->lexeme);
+                                    print_inst_tac(stdout, new_tac);
+                                    temp_reg = temp_reg + 1;}
+    | assignment '/' assignment     {Node* div = create_node(yylineno, div_node, "/", NULL);
+                                    char res[4];
+                                    sprintf(res, "t%d", temp_reg);
+                                    $$ = create_node(yylineno, assignment_node, res, $1, div, $3, NULL);
+                                    struct tac* new_tac = create_inst_tac(res, $1->lexeme, "/", $3->lexeme);
+                                    print_inst_tac(stdout, new_tac);
+                                    temp_reg = temp_reg + 1;}
+    | assignment '%' assignment     {Node* mod = create_node(yylineno, mod_node, "%", NULL);
                                     char res[4];
                                     sprintf(res, "t%d", temp_reg);
                                     $$ = create_node(yylineno, assignment_node, res, $1, mod, $3, NULL);
-                                    struct tac* new_tac = create_inst_tac(res, $1, "%", $3->lexeme);
+                                    struct tac* new_tac = create_inst_tac(res, $1->lexeme, "%", $3->lexeme);
                                     print_inst_tac(stdout, new_tac);
-                                    temp_reg = temp_reg + 1;
-                                    }
+                                    temp_reg = temp_reg + 1;}
 
- /*   | ID INCR   {$$ = create_node(yylineno, assignment_node, "ID INCR", $1, $2, NULL);
-                struct tac* new_tac = create_inst_tac((char *)$1, (char *)$1, "+", "1");}
+    | ID INCR   {$$ = create_node(yylineno, assignment_node, "ID INCR", $1, $2, NULL);
+                struct tac* new_tac = create_inst_tac((char *)$1, (char *)$1, "+", "1");
+                print_inst_tac(stdout, new_tac);}
 
     | ID DECR   {$$ = create_node(yylineno, assignment_node, "ID DECR", $1, $2, NULL);
-                struct tac* new_tac = create_inst_tac((char *)$1, (char *)$1, "-", "1");}*/
+                struct tac* new_tac = create_inst_tac((char *)$1, (char *)$1, "-", "1");
+                print_inst_tac(stdout, new_tac);}
 
     | '(' assignment ')'    {Node* open_round_brac = create_node(yylineno, open_round_brac_node, "(", NULL);
                             Node* close_round_brac = create_node(yylineno, close_round_brac_node, ")", NULL);
-                            $$ = create_node(yylineno, assignment_node,(char *) $2, open_round_brac, $2, close_round_brac, NULL);}
-/*    | '-' '(' assignment ')'    {Node* sub = create_node(yylineno, sub_node, "-", NULL);
-                                Node* open_round_brac = create_node(yylineno, open_round_brac_node, "(", NULL);
-                                Node* close_round_brac = create_node(yylineno, close_round_brac_node, ")", NULL);
-                                $$ = create_node(yylineno, assignment_node, , sub, open_round_brac, $3, close_round_brac, NULL);}*/
-    | '-' CONSTANT  {Node* sub = create_node(yylineno, sub_node, "-", NULL);
-                    $$ = create_node(yylineno, assignment_node, "- CONSTANT", sub, $2, NULL);}
-    | '-' ID        {Node* sub = (Node*)malloc(sizeof(Node));
-                    $$ = create_node(yylineno, assignment_node, "- ID", sub, $2, NULL);} 
+                            $$ = create_node(yylineno, assignment_node, $2->lexeme, open_round_brac, $2, close_round_brac, NULL);}
+    | '-' assignment    {Node* sub = create_node(yylineno, sub_node, "-", NULL);
+                        char res[4];
+                        sprintf(res, "t%d", temp_reg);
+                        $$ = create_node(yylineno, assignment_node, res, sub, $2, NULL);
+                        struct tac* new_tac = create_inst_tac(res, NULL, "-", $2->lexeme);
+                        print_inst_tac(stdout, new_tac);}
     | CONSTANT  {$$ = create_node(yylineno, assignment_node, (char *)$1, $1, NULL);}
     | ID        {$$ = create_node(yylineno, assignment_node, (char *)$1, $1, NULL);}
     ;
 
+    
 /* Array usage */
 array_usage
     : ID '[' assignment ']' {Node* open_sqr_brac = create_node(yylineno, open_sqr_brac_node, "[", NULL);
@@ -276,17 +259,6 @@ type
                 tipo_global = 0;}
     | DOUBLE    {$$ = create_node(yylineno, type_node, "DOUBLE", $1, NULL);
                 tipo_global = DOUBLE_TYPE;}
-    ;
-
-/* Function call section */
-function_call
-    : ID '(' ')'                {Node* open_round_brac = create_node(yylineno, open_round_brac_node, "(", NULL);
-                                Node* close_round_brac = create_node(yylineno, close_round_brac_node, ")", NULL);
-                                $$ = create_node(yylineno, function_call_node, "ID ( )", $1, open_round_brac, close_round_brac, NULL);}
-
-    | ID '(' assignment ')'     {Node* open_round_brac = create_node(yylineno, open_round_brac_node, "(", NULL);
-                                Node* close_round_brac = create_node(yylineno, close_round_brac_node, ")", NULL);
-                                $$ = create_node(yylineno, function_call_node, "ID ( assignment )", $1, open_round_brac, $3, close_round_brac, NULL);}
     ;
 
 /* Function section */
@@ -334,8 +306,17 @@ stmt
     | if_stmt           {$$ = create_node(yylineno, stmt_node, "if_stmt", $1, NULL);}  
     | print_func        {$$ = create_node(yylineno, stmt_node, "print_func", $1, NULL);} 
     | jump_statement    {$$ = create_node(yylineno, stmt_node, "jump_statement", $1, NULL);}
-    | ';'               {Node* semicollon = create_node(yylineno, semicollon_node, ";", NULL);
-                        $$ = create_node(yylineno, stmt_node, ";", semicollon, NULL);}
+    | ID '=' assignment ';'     {Node* eq = create_node(yylineno, eq_node, "=", NULL);
+                                Node* id = create_node(yylineno, id_node, "ID", NULL);
+                                temp_reg = 1;
+                                struct tac* new_tac = create_inst_tac($1, $3->lexeme, "=", NULL);
+                                print_inst_tac(stdout, new_tac);
+                                $$ = create_node(yylineno, assignment_node, $1, id, eq, $3, ";", NULL);}
+    | array_usage '=' assignment ';'    {Node* eq = create_node(yylineno, eq_node, "=", NULL);
+                                        $$ = create_node(yylineno, assignment_node, "array_usage = assignment", $1, eq, $3, ";", NULL);
+                                        }
+    | ';'                   {Node* semicollon = create_node(yylineno, semicollon_node, ";", NULL);
+                            $$ = create_node(yylineno, stmt_node, ";", semicollon, NULL);}
     ;
 
 
@@ -425,3 +406,4 @@ print_func
     							$$ = create_node(yylineno, print_func_node, "PRINTF ( expr ) ;", $1, open_round_brac, $3, close_round_brac, semicollon, NULL);}
     ;
 %%
+
