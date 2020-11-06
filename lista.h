@@ -71,13 +71,13 @@ struct node_tac {
  *   999:  ultima_instrucao
  *   000:  agora_tem_instrucao_demais
  */
-void print_tac(FILE* out, struct node_tac * code);
+void print_tac(FILE* out, struct node_tac* code);
 
 /** Insere no fim da lista 'code' o elemento 'inst'.
  * @param code lista (possivelmente vazia) inicial, em entrada. Na saida, contem *         a mesma lista, com mais um elemento inserido no fim.
  * @inst  o elemento inserido no fim da lista.
  */
-void append_inst_tac(struct node_tac ** code, struct tac * inst);
+void append_inst_tac(struct node_tac** code, struct tac* inst);
 
 /** Concatena a lista 'code_a' com a lista 'code_b'.
  * @param code_a lista (possivelmente vazia) inicial, em entrada. Na saida, contem

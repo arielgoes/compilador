@@ -21,7 +21,8 @@
     extern int yylineno;
     extern Node* syntax_tree;
     extern symbol_t symbol_table;
-    extern struct node_tac** code;
+    struct node_tac* code = NULL;
+    struct node_tac* temp_tac = NULL; //list of tacs
 
     //extern char yytext[];
     extern int column;
@@ -32,11 +33,11 @@
     }
 
     int vars_size = 0;
+    int total_reg = 0;
     int tipo_global = 0;
 
 
     int temp_reg = 1; //t1, t2, t3,...
-    struct node_tac** temp_tac; //list of tacs
     
     void create_table_entry(char* lexeme){
         if(lookup(symbol_table, lexeme)){
@@ -44,7 +45,7 @@
             return;
         }else{
             entry_t* new_entry = (entry_t*)malloc(sizeof(entry_t));
-            printf("\n>>>> New symbol: '%s', type: '%d'", lexeme, tipo_global);
+            //printf("\n>>>> New symbol: '%s', type: '%d'", lexeme, tipo_global);
             new_entry->name = lexeme;
             switch(tipo_global){
                 case FLOAT_TYPE: 
@@ -135,7 +136,7 @@
 
 atree
     :translation_unit {$$ = create_node(yylineno, atree_node, "atree", $1, NULL); syntax_tree = $$;
-    uncompile(stdout, $1);}
+    /*uncompile(stdout, $1);*/}
     ;
 
 /* starting point for yacc */
@@ -176,58 +177,50 @@ declaration_assignment
 /* Assignment section */
 assignment
     : assignment '+' assignment     {Node* sum = create_node(yylineno, sum_node, "+", NULL);
-                                    char res[4];
-                                    sprintf(res, "t%d", temp_reg);
+                                    char res[7];
+                                    sprintf(res, "%03d(Rx)", temp_reg);
                                     $$ = create_node(yylineno, assignment_node, res, $1, sum, $3, NULL);
-                                    struct tac* new_tac = create_inst_tac(res, $1->lexeme, "+", $3->lexeme);
-                                    print_inst_tac(stdout, new_tac);
-                                    temp_reg = temp_reg + 1;}
+                                    struct tac* new_tac = create_inst_tac(res, $1->lexeme, "SUM", $3->lexeme);
+                                    temp_reg = temp_reg + 1;
+                                    append_inst_tac(&temp_tac, new_tac);}
     | assignment '-' assignment     {Node* sub = create_node(yylineno, sub_node, "-", NULL);
-                                    char res[4];
-                                    sprintf(res, "t%d", temp_reg);
+                                    char res[7];
+                                    sprintf(res, "%03d(Rx)", temp_reg);
                                     $$ = create_node(yylineno, assignment_node, res, $1, sub, $3, NULL);
-                                    struct tac* new_tac = create_inst_tac(res, $1->lexeme, "-", $3->lexeme);
-                                    print_inst_tac(stdout, new_tac);
-                                    temp_reg = temp_reg + 1;}
+                                    struct tac* new_tac = create_inst_tac(res, $1->lexeme, "SUB", $3->lexeme);
+                                    temp_reg = temp_reg + 1;
+                                    append_inst_tac(&temp_tac, new_tac);}
     | assignment '*' assignment     {Node* mult = create_node(yylineno, mult_node, "*", NULL);
-                                    char res[4];
-                                    sprintf(res, "t%d", temp_reg);
+                                    char res[7];
+                                    sprintf(res, "%03d(Rx)", temp_reg);
                                     $$ = create_node(yylineno, assignment_node, res, $1, mult, $3, NULL);
-                                    struct tac* new_tac = create_inst_tac(res, $1->lexeme, "*", $3->lexeme);
-                                    print_inst_tac(stdout, new_tac);
-                                    temp_reg = temp_reg + 1;}
+                                    struct tac* new_tac = create_inst_tac(res, $1->lexeme, "MULT", $3->lexeme);
+                                    temp_reg = temp_reg + 1;
+                                    append_inst_tac(&temp_tac, new_tac);}
     | assignment '/' assignment     {Node* div = create_node(yylineno, div_node, "/", NULL);
-                                    char res[4];
-                                    sprintf(res, "t%d", temp_reg);
+                                    char res[7];
+                                    sprintf(res, "%03d(Rx)", temp_reg);
                                     $$ = create_node(yylineno, assignment_node, res, $1, div, $3, NULL);
-                                    struct tac* new_tac = create_inst_tac(res, $1->lexeme, "/", $3->lexeme);
-                                    print_inst_tac(stdout, new_tac);
-                                    temp_reg = temp_reg + 1;}
+                                    struct tac* new_tac = create_inst_tac(res, $1->lexeme, "DIV", $3->lexeme);
+                                    temp_reg = temp_reg + 1;
+                                    append_inst_tac(&temp_tac, new_tac);}
     | assignment '%' assignment     {Node* mod = create_node(yylineno, mod_node, "%", NULL);
-                                    char res[4];
-                                    sprintf(res, "t%d", temp_reg);
+                                    char res[7];
+                                    sprintf(res, "%03d(Rx)", temp_reg);
                                     $$ = create_node(yylineno, assignment_node, res, $1, mod, $3, NULL);
-                                    struct tac* new_tac = create_inst_tac(res, $1->lexeme, "%", $3->lexeme);
-                                    print_inst_tac(stdout, new_tac);
-                                    temp_reg = temp_reg + 1;}
-
-    | ID INCR   {$$ = create_node(yylineno, assignment_node, "ID INCR", $1, $2, NULL);
-                struct tac* new_tac = create_inst_tac((char *)$1, (char *)$1, "+", "1");
-                print_inst_tac(stdout, new_tac);}
-
-    | ID DECR   {$$ = create_node(yylineno, assignment_node, "ID DECR", $1, $2, NULL);
-                struct tac* new_tac = create_inst_tac((char *)$1, (char *)$1, "-", "1");
-                print_inst_tac(stdout, new_tac);}
-
+                                    struct tac* new_tac = create_inst_tac(res, $1->lexeme, "MOD", $3->lexeme);
+                                    temp_reg = temp_reg + 1;
+                                    append_inst_tac(&temp_tac, new_tac);}
     | '(' assignment ')'    {Node* open_round_brac = create_node(yylineno, open_round_brac_node, "(", NULL);
                             Node* close_round_brac = create_node(yylineno, close_round_brac_node, ")", NULL);
                             $$ = create_node(yylineno, assignment_node, $2->lexeme, open_round_brac, $2, close_round_brac, NULL);}
     | '-' assignment    {Node* sub = create_node(yylineno, sub_node, "-", NULL);
-                        char res[4];
-                        sprintf(res, "t%d", temp_reg);
+                        char res[7];
+                        sprintf(res, "%03d(Rx)", temp_reg);
                         $$ = create_node(yylineno, assignment_node, res, sub, $2, NULL);
-                        struct tac* new_tac = create_inst_tac(res, NULL, "-", $2->lexeme);
-                        print_inst_tac(stdout, new_tac);}
+                        struct tac* new_tac = create_inst_tac(res, NULL, "UMINUS", $2->lexeme);
+                        temp_reg = temp_reg + 1;
+                        append_inst_tac(&temp_tac, new_tac);}
     | CONSTANT  {$$ = create_node(yylineno, assignment_node, (char *)$1, $1, NULL);}
     | ID        {$$ = create_node(yylineno, assignment_node, (char *)$1, $1, NULL);}
     ;
@@ -310,8 +303,23 @@ stmt
                                 Node* id = create_node(yylineno, id_node, "ID", NULL);
                                 temp_reg = 1;
                                 struct tac* new_tac = create_inst_tac($1, $3->lexeme, "=", NULL);
-                                print_inst_tac(stdout, new_tac);
-                                $$ = create_node(yylineno, assignment_node, $1, id, eq, $3, ";", NULL);}
+                                $$ = create_node(yylineno, assignment_node, $1, id, eq, $3, ";", NULL);
+                                append_inst_tac(&temp_tac, new_tac);
+                                cat_tac(&code, &temp_tac);
+                                temp_tac = NULL;
+                                print_tac(stdout, code);}
+    | ID DECR   {$$ = create_node(yylineno, assignment_node, "ID DECR", $1, $2, NULL);
+                struct tac* new_tac = create_inst_tac((char *)$1, (char *)$1, "-", "1");
+                append_inst_tac(&temp_tac, new_tac);
+                cat_tac(&code, &temp_tac);
+                temp_tac = NULL;
+                print_tac(stdout, code);}
+    | ID INCR   {$$ = create_node(yylineno, assignment_node, "ID INCR", $1, $2, NULL);
+                struct tac* new_tac = create_inst_tac((char *)$1, (char *)$1, "+", "1");
+                append_inst_tac(&temp_tac, new_tac);
+                cat_tac(&code, &temp_tac);
+                temp_tac = NULL;
+                print_tac(stdout, code);}
     | array_usage '=' assignment ';'    {Node* eq = create_node(yylineno, eq_node, "=", NULL);
                                         $$ = create_node(yylineno, assignment_node, "array_usage = assignment", $1, eq, $3, ";", NULL);
                                         }

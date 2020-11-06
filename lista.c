@@ -3,18 +3,18 @@
 #include <string.h>
 #include <stdarg.h>
 #include "lista.h"
+#include "symbol_table.h"
 
 
 extern int vars_size;
 extern int temps_size;
+extern symbol_t symbol_table;
 int tac_line = 0;
-struct node_tac** code;
 
 void append_inst_tac(struct node_tac** code, struct tac* inst){
 
     //creates a new instance of tac instruction
     struct node_tac* new_inst = (struct node_tac*)malloc(sizeof(struct node_tac));
-
     if(new_inst == NULL){
         printf("ERROR: Failed to allocate enough memory!\n");
         exit(0);
@@ -25,13 +25,17 @@ void append_inst_tac(struct node_tac** code, struct tac* inst){
         exit(0);
     }
 
+    if(code == NULL){
+        printf("\n\"append_inst_tac\": NULL case!\n");
+    }
+
     new_inst->inst = inst;
     new_inst->next = NULL;
     tac_line++;
     new_inst->number = tac_line;
 
-    if(code[0] == NULL){ //funciona essa parte?
-        code[0] = new_inst;
+    if(code[0] == NULL){
+        code[0] = new_inst; //set header
         new_inst->prev = NULL;
     }else{
         struct node_tac* tac_pointer;
@@ -100,25 +104,78 @@ struct tac* create_inst_tac(const char* res, const char* arg1,
 
 
 void print_inst_tac(FILE* out, struct tac* i){
+
     if(i->arg2 == NULL){
-        printf("\n%s := %s\n", i->res, i->arg1);
+        entry_t* result_res = lookup(symbol_table, i->res);
+        entry_t* result_arg1 = lookup(symbol_table, i->arg1);
+        if(result_res && result_arg1){
+            int mem_pos = result_res->desloc - result_res->size;
+            int mem_pos_arg1 = result_arg1->desloc - result_arg1->size;
+            printf("%03d(SP) := %03d(SP)\n", mem_pos, mem_pos_arg1);
+        }else if(result_res != NULL){
+            int mem_pos = result_res->desloc - result_res->size; 
+            printf("%03d(SP) := %s\n", mem_pos, i->arg1);
+        }else{
+            printf("%s := %s\n", i->res, i->arg1);
+        }
     }else if(i->arg1 == NULL){
-        printf("\n%s := %s %s", i->res, i->op, i->arg2);
+        entry_t* result = lookup(symbol_table, i->arg2);
+        if(result != NULL){
+            int mem_pos = result->desloc - result->size; 
+            printf("%s := %s %03d(SP)\n",i->res, i->op, mem_pos);
+        }else{
+            printf("%s := %s %s\n", i->res, i->op, i->arg2);
+        }
     }else{
-        printf("\n%s := %s %s %s\n", i->res, i->arg1, i->op, i->arg2);
+        entry_t* result_arg1 = lookup(symbol_table, i->arg1);
+        entry_t* result_arg2 = lookup(symbol_table, i->arg2);
+        if(result_arg1 && result_arg2){
+            int mem_pos_arg1 = result_arg1->desloc - result_arg1->size;
+            int mem_pos_arg2 = result_arg2->desloc - result_arg2->size;
+            printf("%s := %03d(SP) %s %03d(SP)\n", i->res, mem_pos_arg1, i->op, mem_pos_arg2);
+        }else if(result_arg1){
+            int mem_pos_arg1 = result_arg1->desloc - result_arg1->size;
+            printf("%s := %03d(SP) %s %s\n", i->res, mem_pos_arg1, i->op, i->arg2);
+        }else if(result_arg2){
+            int mem_pos_arg2 = result_arg2->desloc - result_arg2->size;
+            printf("%s := %s %s %03d(SP)\n", i->res, i->arg1, i->op, mem_pos_arg2);
+        }else{
+            printf("%s := %s %s %s\n", i->res, i->arg1, i->op, i->arg2);
+        }
+
+
+
+
+
+
+
     }
 }
 
 
 void print_tac(FILE* out, struct node_tac* code){
     printf("\n\n\t THREE ADDRESS CODE\n\n");
+    if(code == NULL){
+        printf("TAC List is empty.\n\n");
+        return;
+    }
+    
+    struct node_tac* tac_pointer = (struct node_tac *)malloc(sizeof(struct node_tac));
+    tac_pointer->inst = code->inst;
+    tac_pointer->next = code->next;
+    tac_pointer->prev = code->prev;
+    tac_pointer->number = code->number;
+
+     
+
     while(1){
-        if(code->next == NULL){
-            printf("%s := %s\n", code->inst->arg1, code->inst->arg2);
+        printf("%03d: ", tac_pointer->number);
+        print_inst_tac(out, tac_pointer->inst);
+        if(tac_pointer->next == NULL){
+            printf("\n\n\t END ADDRESS CODE\n\n");
             break;
         }else{
-            printf("%s := %s %s %s\n", code->inst->res, code->inst->arg1, code->inst->op, code->inst->arg2);
-            code = code->next;
+            tac_pointer = tac_pointer->next;
         }
     }
 }
@@ -126,13 +183,13 @@ void print_tac(FILE* out, struct node_tac* code){
 
 void cat_tac(struct node_tac** code_a, struct node_tac** code_b){
     if(code_a[0] == NULL){
-        code_a[0] == code_b[0];
+        code_a[0] = code_b[0];
     }else{
         if(code_b[0]){
             struct node_tac* tac_pointer;
             tac_pointer = code_a[0];
 
-            while(tac_pointer->next){
+            while(tac_pointer->next != NULL){
                 tac_pointer = tac_pointer->next;
             }
 
