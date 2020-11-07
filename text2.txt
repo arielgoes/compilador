@@ -2,6 +2,9 @@ int main(){
 	int a = 0;
 	int b = 15;
 	int c;
-	a = b + 1 * c;
+	a = 10 + 1 * 10;
 	return 0;
+	if(c < b){
+		c++;
+	}
 }

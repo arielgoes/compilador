@@ -135,7 +135,11 @@ void print_inst_tac(FILE* out, struct tac* i){
             printf("%s := %03d(SP) %s %03d(SP)\n", i->res, mem_pos_arg1, i->op, mem_pos_arg2);
         }else if(result_arg1){
             int mem_pos_arg1 = result_arg1->desloc - result_arg1->size;
-            printf("%s := %03d(SP) %s %s\n", i->res, mem_pos_arg1, i->op, i->arg2);
+            if(strcmp(i->res, i->arg1) == 0){
+                printf("%03d(SP) := %03d(SP) %s %s\n", mem_pos_arg1, mem_pos_arg1, i->op, i->arg2);
+            }else{
+                printf("%s := %03d(SP) %s %s\n", i->res, mem_pos_arg1, i->op, i->arg2);
+            }
         }else if(result_arg2){
             int mem_pos_arg2 = result_arg2->desloc - result_arg2->size;
             printf("%s := %s %s %03d(SP)\n", i->res, i->arg1, i->op, mem_pos_arg2);

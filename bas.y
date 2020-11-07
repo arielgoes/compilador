@@ -217,8 +217,8 @@
 %type<no> expr                   
 %type<no> else_elif_stmt         
 %type<no> else_stmt
-
-%type<str> type relop
+%type<no> relop
+%type<no> type
 
 %right '='
 %left AND OR
@@ -515,13 +515,22 @@ else_stmt
 
 /*expression Block*/
 expr   
-    : expr relop expr  {$$ = create_node(yylineno, expr_node, "expr relop expr", $1, $2, $3, NULL);}
-    | assignment    {$$ = create_node(yylineno, expr_node, "assignment", $1, NULL);}
-    | array_usage   {$$ = create_node(yylineno, expr_node, "array_usage", $1, NULL);}
+    : expr relop expr  {printf("\n\n %s  %s  %s\n\n", $1->lexeme, $2->lexeme, $3->lexeme);
+                        int temp_tipo = check_types($1, $3);
+                        char res[7];
+                        sprintf(res, "%03d(Rx)", temp_size);
+                        create_temp_table(res, temp_tipo);
+                        $$ = create_node(yylineno, expr_node, res, $1, $2, $3, NULL);
+                        struct tac* new_tac = create_inst_tac(res, $1->lexeme, $2->lexeme, $3->lexeme);
+                        append_inst_tac(&temp_tac, new_tac);
+                        cat_tac(&code, &temp_tac);
+                        temp_tac = NULL;
+                        print_tac(stdout, code);}
+    | assignment    {$$ = create_node(yylineno, expr_node, $1->lexeme, $1, NULL);}
     ;
 
 relop
-    : LE    {$$ = create_node(yylineno, le_node, "=", NULL);}
+    : LE    {$$ = create_node(yylineno, le_node, "<=", NULL);}
     | GE    {$$ = create_node(yylineno, ge_node, ">=", NULL);} 
     | NE    {$$ = create_node(yylineno, ne_node, "!=", NULL);}
     | EQ    {$$ = create_node(yylineno, eq_node, "==", NULL);}
