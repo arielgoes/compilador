@@ -11,6 +11,7 @@
     #define INT_TYPE 2
     #define CHAR_TYPE 3
     #define DOUBLE_TYPE 4
+    #define STR_TYPE 5
 
     #define FLOAT_SIZE 4
     #define INT_SIZE 4
@@ -21,9 +22,13 @@
     extern int yylineno;
     extern Node* syntax_tree;
     extern symbol_t symbol_table;
+    extern symbol_t temp_table;
     struct node_tac* code = NULL;
     struct node_tac* temp_tac = NULL; //list of tacs
 
+    int vars_size = 0;
+    int temp_size = 0;
+    
     //extern char yytext[];
     extern int column;
 
@@ -32,12 +37,11 @@
         printf("\n%*s\n%*s\n", column, "^", column, s);
     }
 
-    int vars_size = 0;
-    int total_reg = 0;
     int tipo_global = 0;
+    int temp_tipo_global = 0;
 
 
-    int temp_reg = 1; //t1, t2, t3,...
+    int temp_reg = 0; //t1, t2, t3,...
     
     void create_table_entry(char* lexeme){
         if(lookup(symbol_table, lexeme)){
@@ -87,6 +91,98 @@
         }
     }
 
+    void create_temp_table(char* temp, int type){
+        if(lookup(temp_table, temp)){
+            printf("'%s' symbol defined multiple times. Type: '%d'.\n", temp, type);
+            return;
+        }else{
+            entry_t* new_entry = (entry_t*)malloc(sizeof(entry_t));
+            //printf("\n>>>> New symbol: '%s', type: '%d'", lexeme, tipo_global);
+            new_entry->name = temp;
+            switch(type){
+                case FLOAT_TYPE: 
+                    temp_size += FLOAT_SIZE;
+                    new_entry->type = type;
+                    new_entry->size = FLOAT_SIZE;
+                    new_entry->desloc = temp_size;
+                    break; 
+                case INT_TYPE:
+                    temp_size += INT_SIZE;
+                    new_entry->type = type;
+                    new_entry->size = INT_SIZE;
+                    new_entry->desloc = temp_size;
+                    break;
+                case CHAR_TYPE:
+                    temp_size += CHAR_SIZE;
+                    new_entry->type = type;
+                    new_entry->size = CHAR_SIZE;
+                    new_entry->desloc = temp_size;
+                    break;
+                default:
+                    printf("\n>>>> ERROR: Undefined type '%s' ^\n", temp);
+                    exit(0);
+            }
+
+            if(insert(&temp_table, new_entry) == -1){
+                printf("\n>>>> insert table: ERROR! Cannot allocate %s into 'symbol_table'!\n", temp);
+                exit(0);
+            }else{
+                /*printf("\n>>>> insert table: SUCCESS! value: %s\n", temp);*/
+            }
+        }
+    }
+
+    int check_types(Node* node1, Node* node2){
+        int temp_tipo = 0;
+        if(lookup(symbol_table, node1->lexeme)){
+            temp_tipo = lookup(symbol_table, node1->lexeme)->type;
+        }else if(lookup(temp_table, node1->lexeme)){
+            temp_tipo = lookup(temp_table, node1->lexeme)->type;
+        }else{
+            switch(node1->type){
+            case 562:
+                temp_tipo = CHAR_TYPE;
+                break;
+            case 563:
+                temp_tipo = INT_TYPE;
+                break;
+            case 564:
+                temp_tipo = FLOAT_TYPE;
+                break;
+            default:
+                printf("\nLookup Error!\n");
+                exit(0);
+            }
+        }
+        int temp_tipo2 = 0;
+        if(lookup(symbol_table, node2->lexeme)){
+            temp_tipo2 = lookup(symbol_table, node2->lexeme)->type;
+        }else if(lookup(temp_table, node2->lexeme)){
+            temp_tipo2 = lookup(temp_table, node2->lexeme)->type;
+        }else{
+            switch(node2->type){
+            case 562:
+                temp_tipo2 = CHAR_TYPE;
+                break;
+            case 563:
+                temp_tipo2 = INT_TYPE;
+                break;
+            case 564:
+                temp_tipo2 = FLOAT_TYPE;
+                break;
+            default:
+                printf("\nLookup Error!\n");
+                exit(0);
+            }
+        }
+        if(temp_tipo != temp_tipo2){
+            printf("\n\nCONFLICTING TYPES IN '%s + %s'\n\n", node1->lexeme, node2->lexeme);
+            exit(0);
+        }else{
+            return temp_tipo;
+        }
+    }
+
 %}
 
 %union{
@@ -96,6 +192,7 @@
 
 %token <no> WHILE FOR IF ELSE ELIF BREAK CONTINUE RETURN PRINTF
 %token <str> FLOAT INT CHAR VOID DOUBLE ID CONSTANT INCR DECR GE LE EQ NE LT GT AND OR NOT
+%token <str> CONSTANT_STR CONSTANT_CHAR CONSTANT_INT CONSTANT_FLOAT
                 
 %type<no> atree
 %type<no> translation_unit       
@@ -166,9 +263,20 @@ declaration
 /* Declaration followed by assignment */
 declaration_assignment
     : ID '=' assignment         {Node* eq = create_node(yylineno, eq_node, "=", NULL);
-                                Node* id = create_node(yylineno, id_node, "ID", NULL);
+                                Node* id = create_node(yylineno, id_node, (char*)$1, NULL);
                                 $$ = create_node(yylineno, assignment_node, "ID = assignment", id, eq, $3, NULL);
-                                create_table_entry($1);}
+                                create_table_entry($1);
+                                if(lookup(symbol_table, (char *)$1) == NULL){
+                                    printf("\n\nVariable '%s' not found.\n\n", (char *)$1);
+                                    exit(0);
+                                }
+                                check_types(id, $3);
+                                struct tac* new_tac = create_inst_tac($1, $3->lexeme, "=", NULL);
+                                $$ = create_node(yylineno, assignment_node, $1, id, eq, $3, ";", NULL);
+                                append_inst_tac(&temp_tac, new_tac);
+                                cat_tac(&code, &temp_tac);
+                                temp_tac = NULL;
+                                print_tac(stdout, code);}
     | ID                        {$$ = create_node(yylineno, assignment_node, "ID", $1, NULL);
                                 create_table_entry($1);}
     ;                             
@@ -177,52 +285,68 @@ declaration_assignment
 /* Assignment section */
 assignment
     : assignment '+' assignment     {Node* sum = create_node(yylineno, sum_node, "+", NULL);
+                                    int temp_tipo = check_types($1, $3);
                                     char res[7];
-                                    sprintf(res, "%03d(Rx)", temp_reg);
+                                    sprintf(res, "%03d(Rx)", temp_size);
+                                    create_temp_table(res, temp_tipo);
                                     $$ = create_node(yylineno, assignment_node, res, $1, sum, $3, NULL);
                                     struct tac* new_tac = create_inst_tac(res, $1->lexeme, "SUM", $3->lexeme);
-                                    temp_reg = temp_reg + 1;
                                     append_inst_tac(&temp_tac, new_tac);}
     | assignment '-' assignment     {Node* sub = create_node(yylineno, sub_node, "-", NULL);
+                                    int temp_tipo = check_types($1, $3);
                                     char res[7];
-                                    sprintf(res, "%03d(Rx)", temp_reg);
+                                    sprintf(res, "%03d(Rx)", temp_size);
+                                    create_temp_table(res, temp_tipo);
                                     $$ = create_node(yylineno, assignment_node, res, $1, sub, $3, NULL);
                                     struct tac* new_tac = create_inst_tac(res, $1->lexeme, "SUB", $3->lexeme);
-                                    temp_reg = temp_reg + 1;
                                     append_inst_tac(&temp_tac, new_tac);}
     | assignment '*' assignment     {Node* mult = create_node(yylineno, mult_node, "*", NULL);
+                                    int temp_tipo = check_types($1, $3);
                                     char res[7];
-                                    sprintf(res, "%03d(Rx)", temp_reg);
+                                    sprintf(res, "%03d(Rx)", temp_size);
+                                    create_temp_table(res, temp_tipo);
                                     $$ = create_node(yylineno, assignment_node, res, $1, mult, $3, NULL);
                                     struct tac* new_tac = create_inst_tac(res, $1->lexeme, "MULT", $3->lexeme);
-                                    temp_reg = temp_reg + 1;
                                     append_inst_tac(&temp_tac, new_tac);}
     | assignment '/' assignment     {Node* div = create_node(yylineno, div_node, "/", NULL);
+                                    int temp_tipo = check_types($1, $3);
+                                    
                                     char res[7];
-                                    sprintf(res, "%03d(Rx)", temp_reg);
+                                    sprintf(res, "%03d(Rx)", temp_size);
+                                    create_temp_table(res, temp_tipo);
                                     $$ = create_node(yylineno, assignment_node, res, $1, div, $3, NULL);
                                     struct tac* new_tac = create_inst_tac(res, $1->lexeme, "DIV", $3->lexeme);
-                                    temp_reg = temp_reg + 1;
                                     append_inst_tac(&temp_tac, new_tac);}
     | assignment '%' assignment     {Node* mod = create_node(yylineno, mod_node, "%", NULL);
+                                    int temp_tipo = check_types($1, $3);
+
                                     char res[7];
-                                    sprintf(res, "%03d(Rx)", temp_reg);
+                                    sprintf(res, "%03d(Rx)", temp_size);
+                                    create_temp_table(res, temp_tipo);
                                     $$ = create_node(yylineno, assignment_node, res, $1, mod, $3, NULL);
                                     struct tac* new_tac = create_inst_tac(res, $1->lexeme, "MOD", $3->lexeme);
-                                    temp_reg = temp_reg + 1;
                                     append_inst_tac(&temp_tac, new_tac);}
     | '(' assignment ')'    {Node* open_round_brac = create_node(yylineno, open_round_brac_node, "(", NULL);
                             Node* close_round_brac = create_node(yylineno, close_round_brac_node, ")", NULL);
                             $$ = create_node(yylineno, assignment_node, $2->lexeme, open_round_brac, $2, close_round_brac, NULL);}
-    | '-' assignment    {Node* sub = create_node(yylineno, sub_node, "-", NULL);
+    | '-' assignment    {Node* sub = create_node(yylineno, sub_node, "-", NULL);                 
+                        int temp_tipo = check_types($2, $2);
                         char res[7];
-                        sprintf(res, "%03d(Rx)", temp_reg);
+                        sprintf(res, "%03d(Rx)", temp_size);
+                        create_temp_table(res, temp_tipo);
                         $$ = create_node(yylineno, assignment_node, res, sub, $2, NULL);
                         struct tac* new_tac = create_inst_tac(res, NULL, "UMINUS", $2->lexeme);
-                        temp_reg = temp_reg + 1;
                         append_inst_tac(&temp_tac, new_tac);}
-    | CONSTANT  {$$ = create_node(yylineno, assignment_node, (char *)$1, $1, NULL);}
-    | ID        {$$ = create_node(yylineno, assignment_node, (char *)$1, $1, NULL);}
+    | CONSTANT_CHAR  {$$ = create_node(yylineno, constant_char_node, (char *)$1, $1, NULL);}
+    | CONSTANT_INT   {$$ = create_node(yylineno, constant_int_node, (char *)$1, $1, NULL);}
+    | CONSTANT_FLOAT {$$ = create_node(yylineno, constant_float_node, (char *)$1, $1, NULL);}
+    | ID        {entry_t* id_entry = lookup(symbol_table, (char *)$1);
+                if(id_entry == NULL){
+                    printf("\n\nVariable '%s' not found.\n\n", (char *)$1);
+                    exit(0);
+                }else{
+                    $$ = create_node(yylineno, assignment_node, (char *)$1, $1, NULL);
+                }}
     ;
 
     
@@ -230,7 +354,11 @@ assignment
 array_usage
     : ID '[' assignment ']' {Node* open_sqr_brac = create_node(yylineno, open_sqr_brac_node, "[", NULL);
                             Node* close_sqr_brac = create_node(yylineno, close_sqr_brac_node, "]", NULL);
-                            $$ = create_node(yylineno, array_usage_node, "ID [ assignment ]", $1, open_sqr_brac, $3, close_sqr_brac, NULL);}
+                            $$ = create_node(yylineno, array_usage_node, "ID [ assignment ]", $1, open_sqr_brac, $3, close_sqr_brac, NULL);
+                            if(lookup(symbol_table, (char *)$1) == NULL){
+                                printf("\n\nVariable '%s' not found.\n\n", (char *)$1);
+                                exit(0);
+                            }}
     ;
 
 declaration_array_usage
@@ -300,8 +428,12 @@ stmt
     | print_func        {$$ = create_node(yylineno, stmt_node, "print_func", $1, NULL);} 
     | jump_statement    {$$ = create_node(yylineno, stmt_node, "jump_statement", $1, NULL);}
     | ID '=' assignment ';'     {Node* eq = create_node(yylineno, eq_node, "=", NULL);
-                                Node* id = create_node(yylineno, id_node, "ID", NULL);
-                                temp_reg = 1;
+                                Node* id = create_node(yylineno, id_node, (char*)$1, NULL);
+                                if(lookup(symbol_table, (char *)$1) == NULL){
+                                    printf("\n\nVariable '%s' not found.\n\n", (char *)$1);
+                                    exit(0);
+                                }
+                                check_types(id, $3);
                                 struct tac* new_tac = create_inst_tac($1, $3->lexeme, "=", NULL);
                                 $$ = create_node(yylineno, assignment_node, $1, id, eq, $3, ";", NULL);
                                 append_inst_tac(&temp_tac, new_tac);
@@ -309,12 +441,20 @@ stmt
                                 temp_tac = NULL;
                                 print_tac(stdout, code);}
     | ID DECR   {$$ = create_node(yylineno, assignment_node, "ID DECR", $1, $2, NULL);
+                if(lookup(symbol_table, (char *)$1) == NULL){
+                    printf("\n\nVariable '%s' not found.\n\n", (char *)$1);
+                    exit(0);
+                }
                 struct tac* new_tac = create_inst_tac((char *)$1, (char *)$1, "-", "1");
                 append_inst_tac(&temp_tac, new_tac);
                 cat_tac(&code, &temp_tac);
                 temp_tac = NULL;
                 print_tac(stdout, code);}
     | ID INCR   {$$ = create_node(yylineno, assignment_node, "ID INCR", $1, $2, NULL);
+                if(lookup(symbol_table, (char *)$1) == NULL){
+                    printf("\n\nVariable '%s' not found.\n\n", (char *)$1);
+                    exit(0);
+                }
                 struct tac* new_tac = create_inst_tac((char *)$1, (char *)$1, "+", "1");
                 append_inst_tac(&temp_tac, new_tac);
                 cat_tac(&code, &temp_tac);

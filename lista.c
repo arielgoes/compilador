@@ -7,7 +7,7 @@
 
 
 extern int vars_size;
-extern int temps_size;
+extern int temp_size;
 extern symbol_t symbol_table;
 int tac_line = 0;
 
@@ -142,13 +142,6 @@ void print_inst_tac(FILE* out, struct tac* i){
         }else{
             printf("%s := %s %s %s\n", i->res, i->arg1, i->op, i->arg2);
         }
-
-
-
-
-
-
-
     }
 }
 
@@ -159,6 +152,9 @@ void print_tac(FILE* out, struct node_tac* code){
         printf("TAC List is empty.\n\n");
         return;
     }
+
+    printf("\n%d", vars_size);
+    printf("\n%d\n", temp_size);
     
     struct node_tac* tac_pointer = (struct node_tac *)malloc(sizeof(struct node_tac));
     tac_pointer->inst = code->inst;

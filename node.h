@@ -86,6 +86,9 @@ typedef int Node_type;
 #define mult_node                   559
 #define div_node                    560
 #define mod_node                    561
+#define constant_char_node          562
+#define constant_int_node           563
+#define constant_float_node         564
 
 /** Estrutura de dados parcial para o no da arvore. */
 typedef struct node {

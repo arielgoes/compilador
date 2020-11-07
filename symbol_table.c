@@ -11,6 +11,7 @@
 
 
 symbol_t symbol_table;
+symbol_t temp_table;
 
 
 int hashpjw(s)

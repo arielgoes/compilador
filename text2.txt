@@ -1,12 +1,7 @@
 int main(){
 	int a = 0;
 	int b = 15;
-	int j = 10;
-	int d;
-
-	a = b + c + d + e / f * g - h + i * (-j) % k + l;
-	a = b + j;
-	d = a;
-
+	int c;
+	a = b + 1 * c;
 	return 0;
 }
