@@ -23,7 +23,7 @@
     extern Node* syntax_tree;
     extern symbol_t symbol_table;
     extern symbol_t temp_table;
-    struct node_tac* code = NULL;
+    extern struct node_tac* code = NULL;
     struct node_tac* temp_tac = NULL; //list of tacs
 
     int vars_size = 0;
@@ -42,6 +42,12 @@
 
 
     int temp_reg = 0; //t1, t2, t3,...
+
+    int label_number = 0;
+
+    int aninhamento = 0;
+    int max_aninhamento = 0;
+
     
     void create_table_entry(char* lexeme){
         if(lookup(symbol_table, lexeme)){
@@ -210,12 +216,13 @@
 %type<no> stmt_list              
 %type<no> stmt                   
 %type<no> while_stmt             
-%type<no> for_stmt               
+%type<no> for_stmt  
+%type<no> conditional_if             
 %type<no> if_stmt                
 %type<no> print_func             
 %type<no> jump_statement                         
 %type<no> expr                   
-%type<no> else_elif_stmt         
+%type<no> elif_stmt         
 %type<no> else_stmt
 %type<no> relop
 %type<no> type
@@ -276,7 +283,7 @@ declaration_assignment
                                 append_inst_tac(&temp_tac, new_tac);
                                 cat_tac(&code, &temp_tac);
                                 temp_tac = NULL;
-                                print_tac(stdout, code);}
+                                /*print_tac(stdout, code);*/}
     | ID                        {$$ = create_node(yylineno, assignment_node, "ID", $1, NULL);
                                 create_table_entry($1);}
     ;                             
@@ -421,10 +428,18 @@ stmt_list
     ;
     
 stmt
-    : while_stmt        {$$ = create_node(yylineno, stmt_node, "while_stmt", $1, NULL);}
+    : while_stmt        {$$ = create_node(yylineno, stmt_node, "while_stmt", $1, NULL);
+                        if(aninhamento == 0){
+                            label_number += max_aninhamento;
+                            max_aninhamento = 0;
+                        }}
     | declaration       {$$ = create_node(yylineno, stmt_node, "declaration", $1, NULL);}
     | for_stmt          {$$ = create_node(yylineno, stmt_node, "for_stmt", $1, NULL);} 
-    | if_stmt           {$$ = create_node(yylineno, stmt_node, "if_stmt", $1, NULL);}  
+    | conditional_if    {$$ = create_node(yylineno, stmt_node, "if_stmt", $1, NULL);
+                        if(aninhamento == 0){
+                            label_number += max_aninhamento;
+                            max_aninhamento = 0;
+                        }}  
     | print_func        {$$ = create_node(yylineno, stmt_node, "print_func", $1, NULL);} 
     | jump_statement    {$$ = create_node(yylineno, stmt_node, "jump_statement", $1, NULL);}
     | ID '=' assignment ';'     {Node* eq = create_node(yylineno, eq_node, "=", NULL);
@@ -439,7 +454,7 @@ stmt
                                 append_inst_tac(&temp_tac, new_tac);
                                 cat_tac(&code, &temp_tac);
                                 temp_tac = NULL;
-                                print_tac(stdout, code);}
+                                /*print_tac(stdout, code);*/}
     | ID DECR   {$$ = create_node(yylineno, assignment_node, "ID DECR", $1, $2, NULL);
                 if(lookup(symbol_table, (char *)$1) == NULL){
                     printf("\n\nVariable '%s' not found.\n\n", (char *)$1);
@@ -449,7 +464,7 @@ stmt
                 append_inst_tac(&temp_tac, new_tac);
                 cat_tac(&code, &temp_tac);
                 temp_tac = NULL;
-                print_tac(stdout, code);}
+                /*print_tac(stdout, code);*/}
     | ID INCR   {$$ = create_node(yylineno, assignment_node, "ID INCR", $1, $2, NULL);
                 if(lookup(symbol_table, (char *)$1) == NULL){
                     printf("\n\nVariable '%s' not found.\n\n", (char *)$1);
@@ -459,7 +474,7 @@ stmt
                 append_inst_tac(&temp_tac, new_tac);
                 cat_tac(&code, &temp_tac);
                 temp_tac = NULL;
-                print_tac(stdout, code);}
+                /*print_tac(stdout, code);*/}
     | array_usage '=' assignment ';'    {Node* eq = create_node(yylineno, eq_node, "=", NULL);
                                         $$ = create_node(yylineno, assignment_node, "array_usage = assignment", $1, eq, $3, ";", NULL);
                                         }
@@ -470,10 +485,53 @@ stmt
 
 /* Loop section */
 while_stmt
-    : WHILE '(' expr ')' compound_stmt  {Node* open_round_brac = create_node(yylineno, open_round_brac_node, "(", NULL);
-                                        Node* close_round_brac = create_node(yylineno, close_round_brac_node, "(", NULL);
-                                        $$ = create_node(yylineno, while_stmt_node, "WHILE ( expr ) compound_stmt",
-                                        $1, open_round_brac, $3, close_round_brac, $5, NULL);}
+    : WHILE '(' {int label_n = label_number + aninhamento;
+                char label[10];
+                sprintf(label, "label%d", label_n);
+                struct tac* new_tac = create_inst_tac(NULL, "label", "", label);
+                append_inst_tac(&code, new_tac);
+                }  
+                
+    expr    {char label[15];
+        
+            sprintf(label, "GOTO label%d", label_number + aninhamento + 1);
+            struct tac* new_tac = create_inst_tac(NULL, "IF", $4->lexeme, label);
+            append_inst_tac(&code, new_tac);
+
+            char end_label[15];
+            int label_n = label_number + aninhamento + 2;
+
+            sprintf(end_label, "GOTO label%d", label_n);
+            struct tac* tac_end = create_inst_tac(NULL, "", "", end_label);
+            append_inst_tac(&code, tac_end);
+
+            char label_name[10];
+            sprintf(label_name, "label%d", label_number + aninhamento + 1);
+            struct tac* tac_label = create_inst_tac(NULL, "label", "", label_name);
+            append_inst_tac(&code, tac_label);
+
+            aninhamento += 3;
+            if(aninhamento > max_aninhamento){
+                max_aninhamento = aninhamento;
+            }
+            } 
+    
+      ')' compound_stmt     {Node* open_round_brac = create_node(yylineno, open_round_brac_node, "(", NULL);
+                            Node* close_round_brac = create_node(yylineno, close_round_brac_node, "(", NULL);
+                            $$ = create_node(yylineno, while_stmt_node, "WHILE ( expr ) compound_stmt",
+                            $1, open_round_brac, $4, close_round_brac, $7, NULL);
+                            
+                            aninhamento -= 3;
+                            char label[15];
+                            sprintf(label, "GOTO label%d", label_number + aninhamento);
+                            struct tac* new_tac = create_inst_tac(NULL, "", "", label);
+                            append_inst_tac(&code, new_tac);
+
+                            char label_name[10];
+                            sprintf(label_name, "label%d", label_number + aninhamento + 2);
+                            struct tac* tac_label = create_inst_tac(NULL, "label", "", label_name);
+                            append_inst_tac(&code, tac_label);
+                            }
     ;
 
 /* For section */
@@ -492,25 +550,67 @@ for_stmt
     ;
 
 /* IfStmt Block */
-if_stmt 
-    : IF '(' expr ')' compound_stmt else_elif_stmt  {Node* open_round_brac = create_node(yylineno, open_round_brac_node, "(", NULL);
-                                                    Node* close_round_brac = create_node(yylineno, close_round_brac_node, ")", NULL);
-                                                    $$ = create_node(yylineno, if_stmt_node, "IF ( expr ) compound_stmt else_elif_stmt", 
-                                                    $1, open_round_brac, $3, close_round_brac, $5, $6, NULL);} 
+
+conditional_if
+    : if_stmt                           {                                        }
+    | if_stmt else_stmt                 {printf("Label fora do if-else\n");}
+    | if_stmt elif_stmt {}
+    | if_stmt elif_stmt else_stmt {}
     ;
 
-else_elif_stmt
-    : ELIF '(' expr ')' compound_stmt else_elif_stmt    {Node* open_round_brac = create_node(yylineno, open_round_brac_node, "(", NULL);
+
+if_stmt 
+    : IF '(' expr   {char label[15];
+
+                    int label_n = label_number + aninhamento;
+                    sprintf(label, "GOTO label%d", label_n);
+                    struct tac* new_tac = create_inst_tac(NULL, "IF", $3->lexeme, label);
+                    append_inst_tac(&code, new_tac);
+                    
+                    int next_label_n = label_number + aninhamento + 1;
+                    char next_label[15];
+                    sprintf(next_label, "GOTO label%d", next_label_n);
+                    printf(next_label);
+                    struct tac* _tac = create_inst_tac(NULL, "", "", next_label);
+                    append_inst_tac(&code, _tac);
+
+
+                    char label_name[10];
+                    sprintf(label_name, "label%d", label_n);
+                    struct tac* tac_ = create_inst_tac(NULL, "label", "", label_name);
+                    append_inst_tac(&code, tac_);
+                    aninhamento += 2;
+                    if(aninhamento > max_aninhamento){
+                        max_aninhamento = aninhamento;
+                    }
+                    }
+                    
+    ')' compound_stmt       {Node* open_round_brac = create_node(yylineno, open_round_brac_node, "(", NULL);
+                            Node* close_round_brac = create_node(yylineno, close_round_brac_node, ")", NULL);
+                            $$ = create_node(yylineno, if_stmt_node, "IF ( expr ) compound_stmt else_elif_stmt", 
+                            $1, open_round_brac, $3, close_round_brac, $6, NULL);
+                            
+                            aninhamento -= 2;
+                            char label_name[10];
+                            sprintf(label_name, "label%d", label_number + aninhamento + 1);
+                            struct tac* tac_ = create_inst_tac(NULL, "label", "", label_name);
+                            append_inst_tac(&code, tac_);
+                            } 
+    ;
+
+elif_stmt
+    : ELIF '(' expr ')' compound_stmt elif_stmt         {Node* open_round_brac = create_node(yylineno, open_round_brac_node, "(", NULL);
                                                         Node* close_round_brac = create_node(yylineno, close_round_brac_node, ")", NULL);
                                                         $$ = create_node(yylineno, else_elif_stmt_node, "ELIF '(' expr ')' compound_stmt else_elif_stmt",
-                                                        $1, open_round_brac, $3, close_round_brac, $5, $6, NULL);}
-
-    | else_stmt {$$ = create_node(yylineno, else_elif_stmt_node, "else_stmt", $1, NULL);}                          
-    |           {$$ = create_node(yylineno, else_elif_stmt_node, "else_stmt --> EMPTY", NULL);}
+                                                        $1, open_round_brac, $3, close_round_brac, $5, $6, NULL);}                        
+    |           {$$ = create_node(yylineno, else_elif_stmt_node, "else_stmt --> EMPTY", NULL);
+                printf("label dentro do else\n");}
     ;
 
 else_stmt
-    : ELSE compound_stmt    {$$ = create_node(yylineno, else_stmt_node, "ELSE compound_stmt", $1, $2, NULL);}
+    : ELSE compound_stmt    {$$ = create_node(yylineno, else_stmt_node, "ELSE compound_stmt", $1, $2, NULL);
+                            
+                            }
     ;
 
 /*expression Block*/
@@ -525,7 +625,7 @@ expr
                         append_inst_tac(&temp_tac, new_tac);
                         cat_tac(&code, &temp_tac);
                         temp_tac = NULL;
-                        print_tac(stdout, code);}
+                        /*print_tac(stdout, code);*/}
     | assignment    {$$ = create_node(yylineno, expr_node, $1->lexeme, $1, NULL);}
     ;
 

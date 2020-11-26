@@ -3,8 +3,21 @@ int main(){
 	int b = 15;
 	int c;
 	a = 10 + 1 * 10;
-	return 0;
-	if(c < b){
+	/*if(c < b){
+		if(a == b){
+			a++;
+			if(a < b){
+				c = 10 * 20;	
+			}
+		}
 		c++;
+	}*/
+
+	while(c > b){
+		c++;
+		b++;
+		if(a >= b){
+			a = 10 * 5;
+		}
 	}
 }

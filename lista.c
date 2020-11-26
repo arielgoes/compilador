@@ -31,8 +31,19 @@ void append_inst_tac(struct node_tac** code, struct tac* inst){
 
     new_inst->inst = inst;
     new_inst->next = NULL;
-    tac_line++;
-    new_inst->number = tac_line;
+    
+    if(inst->res == NULL){
+        if(strcmp(inst->arg1, "label") == 0){
+            new_inst->number = -1;
+        }else{
+            tac_line++;
+            new_inst->number = tac_line;
+        }
+    }else{
+        tac_line++;
+        new_inst->number = tac_line;
+    }
+
 
     if(code[0] == NULL){
         code[0] = new_inst; //set header
@@ -65,13 +76,21 @@ struct tac* create_inst_tac(const char* res, const char* arg1,
         strcpy(new_tac->op, op);
     }
 
-    new_tac->res = (char *)malloc(sizeof(char) * (strlen(res) + 1)); // len + 1, because of the '\0' 
-    if(new_tac->res == NULL){
-        printf("ERROR: Failed to allocate enough memory!\n");
-        exit(0);
+
+    if(res == NULL){
+        new_tac->res = NULL;
     }else{
-        strcpy(new_tac->res, res);
+        new_tac->res = (char *)malloc(sizeof(char) * (strlen(res) + 1)); // len + 1, because of the '\0' 
+        if(new_tac->res == NULL){
+            printf("ERROR: Failed to allocate enough memory!\n");
+            exit(0);
+        }else{
+            strcpy(new_tac->res, res);
+            
+        }
     }
+
+
     if(arg1 == NULL){
         new_tac->arg1 = NULL;
     }else{
@@ -108,6 +127,9 @@ void print_inst_tac(FILE* out, struct tac* i){
     if(i->arg2 == NULL){
         entry_t* result_res = lookup(symbol_table, i->res);
         entry_t* result_arg1 = lookup(symbol_table, i->arg1);
+
+        
+
         if(result_res && result_arg1){
             int mem_pos = result_res->desloc - result_res->size;
             int mem_pos_arg1 = result_arg1->desloc - result_arg1->size;
@@ -125,6 +147,18 @@ void print_inst_tac(FILE* out, struct tac* i){
             printf("%s := %s %03d(SP)\n",i->res, i->op, mem_pos);
         }else{
             printf("%s := %s %s\n", i->res, i->op, i->arg2);
+        }
+    }else if(i->res == NULL){
+        if(strcmp(i->arg1, "label") == 0){
+            printf("%s: %s\n", i->arg1, i->arg2);
+        }else{
+            entry_t* result_op = lookup(symbol_table, i->op);
+            if(result_op){
+                int mem_pos_op = result_op->desloc - result_op->size;
+                printf("%s %03d(SP) %s\n", i->arg1, mem_pos_op, i->arg2);
+            }else{
+                printf("%s %s %s\n", i->arg1, i->op, i->arg2);
+            }
         }
     }else{
         entry_t* result_arg1 = lookup(symbol_table, i->arg1);
@@ -169,7 +203,9 @@ void print_tac(FILE* out, struct node_tac* code){
      
 
     while(1){
-        printf("%03d: ", tac_pointer->number);
+        if(tac_pointer->number != -1){
+            printf("%03d: ", tac_pointer->number);
+        }
         print_inst_tac(out, tac_pointer->inst);
         if(tac_pointer->next == NULL){
             printf("\n\n\t END ADDRESS CODE\n\n");

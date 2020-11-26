@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <assert.h>
 
+#include "lista.h"
 #include "node.h"
 
 /* Programa principal. */
@@ -10,6 +11,7 @@ int lineno;
 
 extern FILE* yyin;
 extern int yyparse();
+struct node_tac* code;
 Node* syntax_tree;
 
 int main(int argc, char* argv[])
@@ -28,6 +30,8 @@ int main(int argc, char* argv[])
 	progname = argv[0];
 
 	int result = yyparse();
+
+	print_tac(stdout, code);
 
 	if(argc == 3) //testing
 		uncompile(stdout, syntax_tree);
